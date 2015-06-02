@@ -4,7 +4,7 @@
 
 import curses
 from math import floor
-from sys import argv
+from sys import argv, stdout, stderr
 
 def main(standardScreen) :
 	curses.curs_set(False)
@@ -19,10 +19,11 @@ def main(standardScreen) :
 	
 
 
-	#TODO : function to read levels and such from a file !
 	# files will contain size & schematics for level
 	# labyrinths (2D grids) are to be represented as 2D tables
 	# 0 is a path, 1 is a wall, 2 is the objective, 3 is the spawn point
+	
+	# this is the default level, if our program isn't called with an argument
 	if len(argv) == 1 :
 		labyrinthLoadedFlag = False
 		myLabyrinth = [
@@ -46,7 +47,17 @@ def main(standardScreen) :
 		# we'll only be reading the first argument
 		labyrinthLoadedFlag = True
 		fileName = argv[1]
-		fileStream = open(fileName)
+	
+		if fileName == "-h" :
+			stdout.write("Please, run this with either no arguments or one filename pointing to a valid level file.")
+			stdout.write("\fAbout level files : level files are simply text files filled with zeros and ones. Basically, a 0 is a valid path, a 1 is a wall, a 2 is the objective, and a 3 is the spawn point.\f")
+			exit()
+		try :
+			fileStream = open(fileName)
+		except OSError as readError :
+			stderr.write("Error when reading the arguments. \fReminder : you should specify no argument (to use the default level) or only one (an existing, valid level file). Maybe did you misspell the name of the file ?\f This error does not cover an error when parsing the file, only when opening it.\f")
+			exit()	
+
 		workingLine="--"
 		myLabyrinth = []
 		levelSizeY = 0
@@ -251,7 +262,7 @@ def main(standardScreen) :
 		elif myLabyrinth[yCoord][xCoord] == 3 : #that's the spawn point, how ambitious
 			myPad.addstr(yCoord, xCoord, "x", curses.color_pair(3))	
 		else :
-			myPad.addstr(yCoord, xdCoord, "x")
+			myPad.addstr(yCoord, xCoord, "x")
 		
 			
 		titleWin.addstr(1, screenMaxX-5, str(nbMoves))
