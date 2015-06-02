@@ -184,6 +184,11 @@ def main(standardScreen) :
 			#myPad = standardScreen.subpad((screenMaxY-2), (screenMaxX-2), 1, 1)
 			#myPad = standardScreen.subpad(levelSizeY+2, levelSizeX+2, 1, 1)
 			#myPad.refresh(1,1,1,1, screenMaxY-1, screenMaxX-1)
+			titleWin.border()
+			if labyrinthLoadedFlag == True :
+				titleWin.addstr(1,1, fileName)
+			else :
+				titleWin.addstr(1,1, "No labyrinth loaded")	
 			myPad.refresh()
 			standardScreen.border()
 			for y in range(0, (levelSizeY)) :
@@ -207,7 +212,7 @@ def main(standardScreen) :
 				yCoord = startCoordY # back to the start case
 				#TODO : a pad can have more than it can display at once.. work on this so that the labyrinths can have sizes superior to the window size					
 
-		elif userInput == ord("q") : # we totally can quit this
+		elif userInput == ord("q") or userInput == ord('Q') : # we totally can quit this
 			break
 
 		else :
@@ -236,7 +241,8 @@ def main(standardScreen) :
 				youWonWindow.addstr(2,1,winString1.center(lengthOfLongestString))
 				youWonWindow.addstr(3,1,winString2.center(lengthOfLongestString))
 				youWonWindow.refresh()
-				if standardScreen.getch() == ord('q') :
+				userInput = standardScreen.getch()
+				if userInput == ord('q') or userInput == ord('Q') :
 					exit()
 				youWonWindow.clear()
 				youWonWindow.redrawwin()
@@ -245,7 +251,7 @@ def main(standardScreen) :
 		elif myLabyrinth[yCoord][xCoord] == 3 : #that's the spawn point, how ambitious
 			myPad.addstr(yCoord, xCoord, "x", curses.color_pair(3))	
 		else :
-			myPad.addstr(yCoord, xCoord, "x")
+			myPad.addstr(yCoord, xdCoord, "x")
 		
 			
 		titleWin.addstr(1, screenMaxX-5, str(nbMoves))
