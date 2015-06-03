@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # using python 3
 # more ncurses
 # I'm trying to do a labyrinth game here
@@ -13,13 +14,13 @@ def main(standardScreen) :
 	screenMaxY, screenMaxX = standardScreen.getmaxyx()
 
 	curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_WHITE) # walls
-	curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_RED) # objective
-	curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLUE) # spawn point
-	curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK) # boundaries
+	curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_RED)   # objective
+	curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLUE)  # spawn point
+	curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK)  # boundaries
 	
 
 
-	# files will contain size & schematics for level
+	# files will contain schematics for levels
 	# labyrinths (2D grids) are to be represented as 2D tables
 	# 0 is a path, 1 is a wall, 2 is the objective, 3 is the spawn point
 	
@@ -114,7 +115,7 @@ def main(standardScreen) :
 	
 	#myPad = standardScreen.subpad((screenMaxY-2), (screenMaxX-2), 1, 1)
 	#myPad = standardScreen.subpad(levelSizeY+2, levelSizeX+2, 1, 1)
-	myPad = standardScreen.subpad(3,1)
+	myPad = curses.newpad(levelSizeY+10, levelSizeX+10)
 	standardScreen.border()
 
 	startCoordSetFlag = False #for the starting position (marked 3 on the level layout)
@@ -143,16 +144,18 @@ def main(standardScreen) :
 	for x in range(0, levelSizeX) :
 		myPad.addstr(levelSizeY, x, "+", curses.color_pair(4))	
 
-	#myPad.addstr(1,1,"y")
-	#myPad.refresh(0,0,5,5,10,10)
-	
+	playerCharacter = "x" # yup. "⛇", "☻" or "x" ? Your choice ! I do recommend a unicode-supporting terminal though.	
+
 	haveWeWonYetFlag = False # because we haven't won yet
 	nbMoves=0
-	
+		
 	xCoord = startCoordX
 	yCoord = startCoordY
 	
-	myPad.addstr(yCoord, xCoord, "x", curses.color_pair(3))
+	myPad.addstr(yCoord, xCoord, playerCharacter, curses.color_pair(3))
+	
+	standardScreen.refresh()
+	myPad.refresh(int(yCoord-((screenMaxY-5)/2)), int(xCoord-((screenMaxX-3)/2)), 3, 1, screenMaxY-2, screenMaxX-2)
 
 	while True :
 		#standardScreen.refresh()
@@ -190,18 +193,19 @@ def main(standardScreen) :
 					nbMoves = nbMoves+1
 	
 		elif userInput == curses.KEY_RESIZE :
+			# we redraw the entire thing on resize
 			screenMaxY, screenMaxX = standardScreen.getmaxyx()
 			standardScreen.clear()
-			#myPad = standardScreen.subpad((screenMaxY-2), (screenMaxX-2), 1, 1)
-			#myPad = standardScreen.subpad(levelSizeY+2, levelSizeX+2, 1, 1)
-			#myPad.refresh(1,1,1,1, screenMaxY-1, screenMaxX-1)
 			titleWin.border()
 			if labyrinthLoadedFlag == True :
 				titleWin.addstr(1,1, fileName)
 			else :
 				titleWin.addstr(1,1, "No labyrinth loaded")	
-			myPad.refresh()
+
+			standardScreen.refresh()
+			myPad.refresh(int(yCoord-((screenMaxY-5)/2)), int(xCoord-((screenMaxX-3)/2)), 3, 1, screenMaxY-2, screenMaxX-2)
 			standardScreen.border()
+
 			for y in range(0, (levelSizeY)) :
 				for x in range(0, (levelSizeX)) :
 					if myLabyrinth[y][x] == 1 :
@@ -221,7 +225,7 @@ def main(standardScreen) :
 			if xCoord > (screenMaxX - 2) or yCoord > (screenMaxY - 2) :
 				xCoord = startCoordX 
 				yCoord = startCoordY # back to the start case
-				#TODO : a pad can have more than it can display at once.. work on this so that the labyrinths can have sizes superior to the window size					
+				nbMoves = 0				
 
 		elif userInput == ord("q") or userInput == ord('Q') : # we totally can quit this
 			break
@@ -232,8 +236,9 @@ def main(standardScreen) :
 
 
 		if myLabyrinth[yCoord][xCoord] == 2 : #yay !
-			myPad.addstr(yCoord, xCoord, "x", curses.color_pair(2))			
-			myPad.refresh()	
+			myPad.addstr(yCoord, xCoord, playerCharacter, curses.color_pair(2))			
+			standardScreen.refresh()
+			myPad.refresh(int(yCoord-((screenMaxY-5)/2)), int(xCoord-((screenMaxX-3)/2)), 3, 1, screenMaxY-2, screenMaxX-2)
 			titleWin.addstr(1, screenMaxX-5, str(nbMoves))
 			titleWin.refresh()	
 			if haveWeWonYetFlag == False :
@@ -260,12 +265,13 @@ def main(standardScreen) :
 				youWonWindow.refresh()
 				standardScreen.refresh()
 		elif myLabyrinth[yCoord][xCoord] == 3 : #that's the spawn point, how ambitious
-			myPad.addstr(yCoord, xCoord, "x", curses.color_pair(3))	
+			myPad.addstr(yCoord, xCoord, playerCharacter, curses.color_pair(3))	
 		else :
-			myPad.addstr(yCoord, xCoord, "x")
+			myPad.addstr(yCoord, xCoord, playerCharacter)
 		
 			
 		titleWin.addstr(1, screenMaxX-5, str(nbMoves))
 		titleWin.refresh()	
-		myPad.refresh()
+		standardScreen.refresh()
+		myPad.refresh(int(yCoord-((screenMaxY-5)/2)), int(xCoord-((screenMaxX-3)/2)), 3, 1, screenMaxY-2, screenMaxX-2)
 curses.wrapper(main)
