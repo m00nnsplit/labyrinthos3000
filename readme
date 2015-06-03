@@ -1,0 +1,64 @@
+.:: Labyrinthos 3000 ::.
+  Frégate Productions
+
+
+ User's manual
+===============
+
+Launch the program with "python3 labyrinth.py" or simply "./labyrinth.py" when you're in the right folder. You do need the version 3 of python installed.
+
+** Playing the game
+
+Simply use the arrow keys to control the "x" representing your character. You can use the "Q" key to quit when playing, or just Ctrl+C.
+
+Your goal is to reach the red square (or one of them, if there's more than one) ; you can't go through white squares ("walls").
+
+** Game parameters
+
+You can load levels in this game ! Simply write the path to the level file after the program when launching the game. A few levels are bundled with this game, but you can create your own.
+
+Alternatively, you can call the game with the "-h" option : this will print a short help and exit.
+
+** Creating levels
+
+This game does not come bundled with a level editor yet. However, this doesn't prevent you from creating your own levels.
+
+This game comes bundled with ".laby" files representing levels ; they are actually simple text files written with a special format.
+
+The files only contain a grid of "0", "1", "2" and "3" : the "0" represent squares the player can go through, the "1" represent white squares (walls) the player can't pass. A "2" case is a target square : if the player reaches one of these, he wins the game. Finally, "3" is where the player spawns.
+
+When the game processes the levels, it takes every "2" into account, but only the first "3" it sees ; so you can only have one spawn point (other spawn points will still appear blue in game, but the player won't spawn on them). If there is no "3" square in the level file, the game will pick the last "0" case it read from the file as spawn point.
+
+Although this hasn't been tested, levels in theory don't have to be rectangular. But it is much easier to create a grid of "0" and work from there, hence why this hasn't been tested.
+
+
+
+ Meddler's guide
+=================
+
+** Rebinding keys
+
+Keys can fairly easily be rebound, as key input is only managed in one place. Simply find the appropriate piece of code (search for "curses.KEY_LEFT", for instance) and rebind the keys as you wish.
+
+Two things to take into consideration : first, the game expects a character, so "w" (a string) won't work whereas ord("w") (a character from a string) will ; second, keep in mind it's fairly common to hit the capslock key when playing.
+
+** Changing the player character
+
+The "character" defaults to a "x", but you can change this to whatever you like. Search for the first occurence of "playerCharacter" and change what it corresponds to.
+
+
+ Developer's guide
+===================
+
+It's hard to write to stdout when inside ncurses, so this program does :
+
+execute errorOutput
+ -> which executes curses.wrapper(main), expecting a returned value
+   -> which sets up curses and runs main(), returning what it returns
+     -> which returns things only on errors
+
+This game uses ncurses. It draws a title window and a pad beneath it, and enters a loop where it waits for user input to continue (ie, process the consequences of the input and refresh the display, before waiting again).
+
+** Limitations to consider
+
+Although using a pad made the game quite flexible to resizes, the title screen and game over window are not as lenient. For now, the entire game needs ~30 characters of wideness : should we work on this ?
