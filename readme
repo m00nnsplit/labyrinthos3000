@@ -31,6 +31,15 @@ When the game processes the levels, it takes every "2" into account, but only th
 
 Although this hasn't been tested, levels in theory don't have to be rectangular. But it is much easier to create a grid of "0" and work from there, hence why this hasn't been tested.
 
+** Level generator
+
+Additionally, this game comes bundled with a level generator ; this program will generate rough but playable, rectangular levels. Nothing is stopping you from using an automatically generated level as a base for your own levels.
+
+To use the level generator, simply execute levelGenerator.py as you would the game ; without any arguments, it will generate a 20*20 level and save it as "a.laby".
+
+You can use arguments to set height, width, and output file name. You can also set the seed for the random generator ; this means that if you give the generator the same width, height and seed to work with twice, it will output the exact same level. Hence, you could share a level your particularly liked with your friends as "the 50*80 level with 'gargamel' as seed".
+
+For concise and comprehensive list of options use the "help" argument.  
 
 
  Meddler's guide
@@ -42,9 +51,11 @@ Keys can fairly easily be rebound, as key input is only managed in one place. Si
 
 Two things to take into consideration : first, the game expects a character, so "w" (a string) won't work whereas ord("w") (a character from a string) will ; second, keep in mind it's fairly common to hit the capslock key when playing.
 
+
 ** Changing the player character
 
 The "character" defaults to a "x", but you can change this to whatever you like. Search for the first occurence of "playerCharacter" and change what it corresponds to.
+
 
 
  Developer's guide
@@ -59,6 +70,24 @@ execute errorOutput
 
 This game uses ncurses. It draws a title window and a pad beneath it, and enters a loop where it waits for user input to continue (ie, process the consequences of the input and refresh the display, before waiting again).
 
+
 ** Limitations to consider
 
 Although using a pad made the game quite flexible to resizes, the title screen and game over window are not as lenient. For now, the entire game needs ~30 characters of wideness : should we work on this ?
+
+
+** level generator
+
+How the generator works :
+
+1. generate a table full of 1s
+
+2. designate semi-randomly starting and ending positions (they are always opposite to one another)
+
+3. Repeatedly "take steps" (ie write 0s) in direction of the objective, with a chance not to go in the right direction for added randomness
+3bis. If this takes too long, switch of the "go in the wrong direction" part and keep going straight for the objective. This writes a message to stderr.
+3ter. If this still takes too long, break out of the loop and go to 4. This also writes a message to stderr.
+
+4. Pick squares at random. If they're 1s, overwrite them with a 0.
+
+5. Write resulting table to disk

@@ -5,6 +5,7 @@
 
 import curses
 from math import floor
+from time import sleep
 from sys import argv, stdout, stderr
 
 def errorOutput() :
@@ -32,6 +33,7 @@ def main(standardScreen) :
 	curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLUE)  # spawn point
 	curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK)  # boundaries
 	
+	curses.init_pair(9, curses.COLOR_WHITE, curses.COLOR_GREEN) # player character
 
 
 	# files will contain schematics for levels
@@ -269,6 +271,8 @@ def main(standardScreen) :
 				youWonWindow.addstr(2,1,winString1.center(lengthOfLongestString))
 				youWonWindow.addstr(3,1,winString2.center(lengthOfLongestString))
 				youWonWindow.refresh()
+				
+				sleep(1)
 				userInput = standardScreen.getch()
 				if userInput == ord('q') or userInput == ord('Q') :
 					exit()
@@ -279,7 +283,7 @@ def main(standardScreen) :
 		elif myLabyrinth[yCoord][xCoord] == 3 : #that's the spawn point, how ambitious
 			myPad.addstr(yCoord, xCoord, playerCharacter, curses.color_pair(3))	
 		else :
-			myPad.addstr(yCoord, xCoord, playerCharacter)
+			myPad.addstr(yCoord, xCoord, playerCharacter, curses.color_pair(9))
 		
 			
 		titleWin.addstr(1, screenMaxX-5, str(nbMoves))
