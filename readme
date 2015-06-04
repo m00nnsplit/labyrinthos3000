@@ -7,11 +7,13 @@
 
 Launch the program with "python3 labyrinth.py" or simply "./labyrinth.py" when you're in the right folder. You do need the version 3 of python installed.
 
+
 ** Playing the game
 
 Simply use the arrow keys to control the "x" representing your character. You can use the "Q" key to quit when playing, or just Ctrl+C.
 
 Your goal is to reach the red square (or one of them, if there's more than one) ; you can't go through white squares ("walls").
+
 
 ** Game parameters
 
@@ -19,17 +21,49 @@ You can load levels in this game ! Simply write the path to the level file after
 
 Alternatively, you can call the game with the "-h" option : this will print a short help and exit.
 
-** Creating levels
 
-This game does not come bundled with a level editor yet. However, this doesn't prevent you from creating your own levels.
+** Creating levels : editor use
 
-This game comes bundled with ".laby" files representing levels ; they are actually simple text files written with a special format.
+This game comes bundled with a level editor ; we will be talking about its use, and editing levels by hand will be talked about later in the Meddler's guide.
 
-The files only contain a grid of "0", "1", "2" and "3" : the "0" represent squares the player can go through, the "1" represent white squares (walls) the player can't pass. A "2" case is a target square : if the player reaches one of these, he wins the game. Finally, "3" is where the player spawns.
+To use the level editor, execute levelEditor.py as you would the game ; without any arguments.. It won't work ! You have two ways to start the level editor : either start with a blank slate or edit an existing level.
 
-When the game processes the levels, it takes every "2" into account, but only the first "3" it sees ; so you can only have one spawn point (other spawn points will still appear blue in game, but the player won't spawn on them). If there is no "3" square in the level file, the game will pick the last "0" case it read from the file as spawn point.
+To start from scratch, two options are essential. The -h option specifies the height of the level and the -w options specifies its width. Both must be set ! You also cannot edit those later, unless you start editing the levels by hand (see the Meddler's guide).
 
-Although this hasn't been tested, levels in theory don't have to be rectangular. But it is much easier to create a grid of "0" and work from there, hence why this hasn't been tested.
+You can also use the -b option to tell the editor it should fill the slate with a particular block ; by default, it is filled with pathways.
+
+An example of valid command would be :
+./levelEditor.py -h 20 -w 35 -b 1
+
+Here we are telling the editor we want a 20 squares high, 35 squares wide level, filled with walls.
+
+You can also edit an existing level. This game comes bundled with .laby file (the .laby extension is unimportant) which you can use as a base. To load a file use the -f option, like this :
+./levelEditor.py -f CryptOfThePharaoh.laby
+
+
+** Creating levels : editor commands
+
+Once in the editor, levels are displayed in the same way they are in game. However, there is no character in the editor ; instead, you control a cursor. The cursor is green, with its colour slightly changing depending on which square it is over (eg, it'll be slightly blue when over a spawn point). It can also go anywhere on the level, without attention to walls.
+
+Note that when your cursor goes beyond the borders of the level, it turns grey and commands won't do anything.
+
+To use the cursor place it on a square and use a command :
+
+Space is the "switch" or "quickswitch" command. If the square you are over is a wall, it will become a pathway, and vice-versa.
+
+R is the "replace" command. When you press R over a square, the editor will prompt you for additional input : S to replace the square by a spawn point, O to replace it with an objective, W to replace it with a wall, and P to replace it with a pathway. After pressing one of these (or any other key, which will have no effect), you will be able to move the cursor and do other commands again.
+
+More commands are to come !
+
+
+** Creating levels : guidelines
+
+The level editor is non-restricting : you can place as many of whatever block you want, wherever you want (as long as it is within the borders of the level). However, you should follow some base guidelines if you want your levels to be playable. Obviously, spawn points should be linked to objectives, and so on. I will be mentioning some subtle points :
+
+- You can place as many objectives as you want, and reaching any of them will complete the level. Placing no objectives means the level cannot be completed.
+
+- Similarly, you can place as many spawn points as you want.. But all won't work. The game will pick one when loading the labyrinth, and stick with it. Other spawn points will still appear blue, though. You can also place zero spawn points, and the game will spawn the player character on an empty square.
+
 
 ** Level generator
 
@@ -55,6 +89,17 @@ Two things to take into consideration : first, the game expects a character, so 
 ** Changing the player character
 
 The "character" defaults to a "x", but you can change this to whatever you like. Search for the first occurence of "playerCharacter" and change what it corresponds to.
+
+
+** Level format
+
+I use .laby files, but they are actually simple text files written in a special format.
+
+The files only contain a grid of "0", "1", "2" and "3" : the "0" represent squares the player can go through, the "1" represent white squares (walls) the player can't pass. A "2" case is a target square : if the player reaches one of these, he wins the game. Finally, "3" is where the player spawns.
+
+When the game processes the levels, it takes every "2" into account, but only the first "3" it sees ; so you can only have one spawn point (other spawn points will still appear blue in game, but the player won't spawn on them). If there is no "3" square in the level file, the game will pick the last "0" case it read from the file as spawn point.
+
+Although this hasn't been tested, levels in theory don't have to be rectangular. But it is much easier to create a grid of "0" and work from there, hence why this hasn't been tested.
 
 
 
