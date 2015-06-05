@@ -26,9 +26,9 @@ Alternatively, you can call the game with the "-h" option : this will print a sh
 
 This game comes bundled with a level editor ; we will be talking about its use, and editing levels by hand will be talked about later in the Meddler's guide.
 
-To use the level editor, execute levelEditor.py as you would the game ; without any arguments.. It won't work ! You have two ways to start the level editor : either start with a blank slate or edit an existing level.
+To use the level editor, execute levelEditor.py as you would the game. You have two ways to start the level editor : either start with a blank slate or edit an existing level. If you run the editor without specifying any arguments, it'll give you a blank slate will all default options and a warning message.
 
-To start from scratch, two options are essential. The -h option specifies the height of the level and the -w options specifies its width. Both must be set ! You also cannot edit those later, unless you start editing the levels by hand (see the Meddler's guide).
+To start from scratch, two options are essential. The -h option specifies the height of the level and the -w options specifies its width. Both default to 20 ; you cannot edit those later, unless you start editing the levels by hand (see the Meddler's guide).
 
 You can also use the -b option to tell the editor it should fill the slate with a particular block ; by default, it is filled with pathways.
 
@@ -39,6 +39,12 @@ Here we are telling the editor we want a 20 squares high, 35 squares wide level,
 
 You can also edit an existing level. This game comes bundled with .laby file (the .laby extension is unimportant) which you can use as a base. To load a file use the -f option, like this :
 ./levelEditor.py -f CryptOfThePharaoh.laby
+
+The -f option also specifies the file to save to, even if it does not exist yet ; but then remember to set the width and height options !
+
+If your only argument is the file name, you can pass it directly, like this :
+./levelEditor.py CryptOfThePharaoh.laby
+It works the same as -f, but cannot be combined with other options
 
 
 ** Creating levels : editor commands
@@ -52,6 +58,14 @@ To use the cursor place it on a square and use a command :
 Space is the "switch" or "quickswitch" command. If the square you are over is a wall, it will become a pathway, and vice-versa.
 
 R is the "replace" command. When you press R over a square, the editor will prompt you for additional input : S to replace the square by a spawn point, O to replace it with an objective, W to replace it with a wall, and P to replace it with a pathway. After pressing one of these (or any other key, which will have no effect), you will be able to move the cursor and do other commands again.
+
+T is the selection tool. After you have pressed T, all other commands are disabled ; you can draw a rectangle using your arrow keys and press T again to confirm you like that particular rectangle. After you have confirmed the selection, you'll have a choice of operations to make on the selected squares : Change them all to paths/walls/objectives/spawns, or "reverse", which makes every path a wall and vice-versa. Pressing any other key at that point will simply cancel the selection.
+
+S is the "save" command. A window will appear reminding you what name the saved file will have and asking you if you are sure ; press Y to confirm, or any other key to cancel.
+
+Q is the "quit" command. A window will appear to ask for confirmation ; press Y to confirm you want to quit, or any other key to cancel.
+
+Finally, H is the "help" command, which brings up a reminder of the in-editor commands.
 
 More commands are to come !
 

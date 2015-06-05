@@ -173,14 +173,22 @@ while workingX != objectiveX or workingY != objectiveY :
 	elif whatWillWeDo == 7 :	
 		if workingX > objectiveX and workingX < labyWidth :
 			workingX = workingX + 1
+			if myLabyrinth[workingY][workingX] == 0 : # we're not backtracking
+				workingX = workingX -1
 		elif workingX <= objectiveX and workingX > 0 :
 			workingX = workingX - 1
+			if myLabyrinth[workingY][workingX] == 0 :
+				workingX = workingX +1
 
 	elif whatWillWeDo == 8 :	
 		if workingY > objectiveY and workingY < labyHeight:
 			workingY = workingY + 1
+			if myLabyrinth[workingY][workingX] == 0 :
+				workingY = workingY -1
 		elif workingY <= objectiveY and workingY > 0 :
 			workingY = workingY - 1
+			if myLabyrinth[workingY][workingX] == 0 :
+				workingY = workingY +1
 
 	kPathfinding = kPathfinding+1
 	if kPathfinding > labyWidth*labyHeight*2 : # this is a very generousy value..
