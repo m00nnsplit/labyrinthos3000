@@ -178,12 +178,11 @@ def main(standardScreen) :
 	else :
 		titleWin.addstr(1,1, "Editing new labyrinth")	
 	titleWin.addstr(2,1,"Press H for help")	
-	#TODO : add commands and all. Context-sensitive-help ?
 	
 
 	# drawing the labyrinth
 	
-	myPad = curses.newpad(labyHeight+100, labyWidth+100) #TODO : for now the cursor can get out of the pad and crash the program.. This should not be possible, add a check or boundaries or something 
+	myPad = curses.newpad(labyHeight+100, labyWidth+100)
 	standardScreen.border()
 
 	startCoordSetFlag = False #for the starting position (marked 3 on the level layout)
@@ -223,11 +222,11 @@ def main(standardScreen) :
 		# obviously we don't give a damn about walls, we're in a level editor
 		if userInput == curses.KEY_LEFT and xCoord > 0 :
 			xCoord = xCoord -1
-		if userInput == curses.KEY_RIGHT and xCoord < screenMaxX :
+		if userInput == curses.KEY_RIGHT and xCoord < labyWidth+99: # +99 because when creating the pad its dimension are those of the level +100
 			xCoord = xCoord +1
 		if userInput == curses.KEY_UP and yCoord > 0 :
 			yCoord = yCoord -1
-		if userInput == curses.KEY_DOWN and yCoord < screenMaxY :
+		if userInput == curses.KEY_DOWN and yCoord < labyHeight+99 :
 			yCoord = yCoord +1	
 
 		if userInput == ord(' ') : #spacebar is "switch" key : path to wall and wall to path
@@ -261,8 +260,80 @@ def main(standardScreen) :
 					titleWin.addstr(2,1,"No changes made.".ljust(screenMaxX-2))
 				titleWin.refresh()			
 	
-		
+		if userInput == ord('b') or userInput == ord('B') :
+		# this is the brush tool. This simply means that everywhere you get on while it is active will be changed to the selected brush's
+		# TODO brush sizes
 
+			titleWin.addstr(2,1,"Entering brush mode. P for path brush, W walls, O objs, S spawns.".ljust(screenMaxX-2))
+			titleWin.refresh()
+
+			secondInput = standardScreen.getch()
+			
+			if secondInput == ord('p') or secondInput == ord('P') :
+				terrainToFillWith = 0
+				titleWin.addstr(2,1,"Brush mode active, painting paths.".ljust(screenMaxX-2))
+			elif secondInput == ord('w') or secondInput == ord('W') :
+				terrainToFillWith = 1
+				titleWin.addstr(2,1,"Brush mode active, painting walls.".ljust(screenMaxX-2))
+			elif secondInput == ord('o') or secondInput == ord('O') :
+				terrainToFillWith = 2
+				titleWin.addstr(2,1,"Brush mode active, painting objectives.".ljust(screenMaxX-2))
+			elif secondInput == ord('s') or secondInput == ord('S') :
+				terrainToFillWith = 3
+				titleWin.addstr(2,1,"Brush mode active, painting spawns.".ljust(screenMaxX-2))
+			else :
+				terrainToFillWith = "exit"
+				titleWin.addstr(2,1,"Exiting brush mode.".ljust(screenMaxX-2))
+				
+			titleWin.refresh()
+			# alright so now I just GOT to complain about Python
+			# "I have "+3+" oranges" crashes your program because oh god silent conversion this is awful !!!1!!
+			# but 0 == False ? No problem at all ! Who cares about that ?
+			# so yeah, I used False for exiting brush mode and paths (0) got taken as exits
+			if terrainToFillWith != "exit" : 
+				nbOfSquaresPainted = 0
+				terrainWasPaintedLastTurn = False
+				while True :
+					#erasing last position
+					if terrainWasPaintedLastTurn :
+						if terrainToFillWith == 0 :
+							myPad.addstr(yCoord,xCoord, " ")
+						else :
+							myPad.addstr(yCoord,xCoord, " ", curses.color_pair(terrainToFillWith))
+					else :
+						myPad.addstr(yCoord,xCoord, " ")
+
+					terrainWasPaintedLastTurn = False
+					secondInput = standardScreen.getch()
+					if secondInput == curses.KEY_LEFT :
+						xCoord = xCoord -1
+					elif secondInput == curses.KEY_RIGHT :
+						xCoord = xCoord +1
+					elif secondInput == curses.KEY_UP :
+						yCoord = yCoord -1
+					elif secondInput == curses.KEY_DOWN :
+						yCoord = yCoord +1	
+					else :
+						titleWin.addstr(2,1,("Exiting brush mode after painting "+str(nbOfSquaresPainted)+" squares.").ljust(screenMaxX-2))
+						titleWin.refresh()
+						break
+
+
+					if xCoord>0 and yCoord>0 and xCoord< labyWidth and yCoord < labyHeight :
+						myLabyrinth[yCoord][xCoord] = terrainToFillWith
+						#myPad.addstr(yCoord,xCoord, "x", curses.color_pair(int("1"+str(myLabyrinth[yCoord][xCoord]))))
+						terrainWasPaintedLastTurn = True
+						nbOfSquaresPainted = nbOfSquaresPainted + 1
+						myPad.addstr(yCoord,xCoord, "b", curses.color_pair(int("1"+str(terrainToFillWith))))
+
+						titleWin.addstr(2,1,("Brush mode active, painted square (y="+str(yCoord)+";x="+str(xCoord)+")").ljust(screenMaxX-2))
+						titleWin.refresh()
+					else :
+						myPad.addstr(yCoord,xCoord, "b", curses.color_pair(4))
+						titleWin.addstr(2,1,"Out of bounds, brush not painting".ljust(screenMaxX-2))
+						titleWin.refresh()
+
+					myPad.refresh(int(yCoord-((screenMaxY-5)/2)), int(xCoord-((screenMaxX-3)/2)), 1, 1, screenMaxY-5, screenMaxX-2)
 
 		if userInput == ord('t') or userInput == ord('T') :
 		# this is the selection rectangle tool. 
@@ -341,11 +412,11 @@ def main(standardScreen) :
 						elif secondInput == ord('r') or secondInput == ord('R') :
 							terrainToFillWith = -1 # reverse
 						else :
-							terrainToFillWith = False
+							terrainToFillWith = "exit"
 							titleString = "Selection cancelled, no changes made."
 						#stderr.write(str(originCoordX)+" "+str(originCoordY)+" "+str(xCoord)+" "+str(yCoord))
 
-						if terrainToFillWith != False :
+						if terrainToFillWith != "exit" :
 							
 							if originCoordY > yCoord :
 								for workingY in range(yCoord, originCoordY+1) :
@@ -447,14 +518,15 @@ def main(standardScreen) :
 			helpString0 = "HELP :"
 			helpString1 = "Spacebar : switch wall/path"
 			helpString2 = "R : replace block"
-			helpString3 = "T : selection tool"
-			helpString4 = "S : save to file"
-			helpString5 = "Q : quit"
-			helpString6 = "H : this help"
-			helpString7 = "Press any key to close this window."
+			helpString3 = "B : brush tool"
+			helpString4 = "T : selection tool"
+			helpString5 = "S : save to file"
+			helpString6 = "Q : quit"
+			helpString7 = "H : this help"
+			helpString8 = "Press any key to close this window."
 
-			lengthOfLongestString=max(len(helpString0),len(helpString1),len(helpString2),len(helpString3),len(helpString4),len(helpString5),len(helpString6), len(helpString7))
-			helpWindow = standardScreen.subwin(10, lengthOfLongestString+2, floor(screenMaxY/2-5), floor(screenMaxX/2-(lengthOfLongestString/2)))
+			lengthOfLongestString=max(len(helpString0),len(helpString1),len(helpString2),len(helpString3),len(helpString4),len(helpString5),len(helpString6), len(helpString7), len(helpString8))
+			helpWindow = standardScreen.subwin(11, lengthOfLongestString+2, floor(screenMaxY/2-5.5), floor(screenMaxX/2-(lengthOfLongestString/2)))
 			helpWindow.border()
 			helpWindow.addstr(1,1,helpString0.center(lengthOfLongestString))
 			helpWindow.addstr(2,1,helpString1.ljust(lengthOfLongestString))
@@ -463,7 +535,8 @@ def main(standardScreen) :
 			helpWindow.addstr(5,1,helpString4.ljust(lengthOfLongestString))
 			helpWindow.addstr(6,1,helpString5.ljust(lengthOfLongestString))
 			helpWindow.addstr(7,1,helpString6.ljust(lengthOfLongestString))
-			helpWindow.addstr(8,1,helpString7.center(lengthOfLongestString))			
+			helpWindow.addstr(8,1,helpString7.ljust(lengthOfLongestString))			
+			helpWindow.addstr(9,1,helpString8.center(lengthOfLongestString))
 
 			helpWindow.refresh()
 			sleep(0.5)

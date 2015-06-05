@@ -225,4 +225,4 @@ for y in range(labyHeight) :
 fileStream.close()
 
 
-print("Labyrinth written to "+outputFile+". It took "+str(kPathfinding)+" loops to find a way from the spawn point to the objective, plus "+str(kPokingHoles)+" loops to poke holes in the thing so it would look better.")
+print("Labyrinth written to "+outputFile+". It took "+str(kPathfinding)+" loops to find a way from the spawn point to the objective, plus "+str(kPokingHoles)+" loops to poke holes in the thing so it would look better. Seed was \""+labySeed+"\" with "+str(labyWidth)+" squares of width and "+str(labyHeight)+" squares of height.")

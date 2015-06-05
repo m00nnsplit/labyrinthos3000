@@ -19,45 +19,48 @@ Your goal is to reach the red square (or one of them, if there's more than one) 
 
 You can load levels in this game ! Simply write the path to the level file after the program when launching the game. A few levels are bundled with this game, but you can create your own.
 
-Alternatively, you can call the game with the "-h" option : this will print a short help and exit.
+Alternatively, you can call the game with the "help" option : this will print a short help and exit.
+
 
 
 ** Creating levels : editor use
 
 This game comes bundled with a level editor ; we will be talking about its use, and editing levels by hand will be talked about later in the Meddler's guide.
 
-To use the level editor, execute levelEditor.py as you would the game. You have two ways to start the level editor : either start with a blank slate or edit an existing level. If you run the editor without specifying any arguments, it'll give you a blank slate will all default options and a warning message.
+To use the level editor, execute levelEditor.py as you would the game. You have two ways to start the level editor : either start with a blank slate or edit an existing level. If you run the editor without specifying any arguments, it'll give you a blank slate with all default options and a warning message.
 
-To start from scratch, two options are essential. The -h option specifies the height of the level and the -w options specifies its width. Both default to 20 ; you cannot edit those later, unless you start editing the levels by hand (see the Meddler's guide).
+To start from scratch, two options are essential : the -h option which specifies the height of the level (in squares) and the -w options which specifies its width. Both default to 20 ; you CANNOT edit those later, unless you start editing the levels by hand (see the Meddler's guide).
 
-You can also use the -b option to tell the editor it should fill the slate with a particular block ; by default, it is filled with pathways.
+You can also use the -b option to tell the editor it should fill the slate with a particular block ; by default, it is filled with pathways. "0" is pathways, "1" is walls, "2" is objectives and "3" is spawn points.
 
 An example of valid command would be :
 ./levelEditor.py -h 20 -w 35 -b 1
 
 Here we are telling the editor we want a 20 squares high, 35 squares wide level, filled with walls.
 
-You can also edit an existing level. This game comes bundled with .laby file (the .laby extension is unimportant) which you can use as a base. To load a file use the -f option, like this :
+You can also edit an existing level. This game comes bundled with .laby files (the .laby extension is unimportant) which you can use as a base. To load a file use the -f option, like this :
 ./levelEditor.py -f CryptOfThePharaoh.laby
 
-The -f option also specifies the file to save to, even if it does not exist yet ; but then remember to set the width and height options !
+The -f option also specifies the file to save to, even if it does not exist yet.
 
 If your only argument is the file name, you can pass it directly, like this :
 ./levelEditor.py CryptOfThePharaoh.laby
-It works the same as -f, but cannot be combined with other options
+It works the same as -f, but cannot be combined with other options ; hence you should use it only when loading a level, not when creating one.
 
 
 ** Creating levels : editor commands
 
 Once in the editor, levels are displayed in the same way they are in game. However, there is no character in the editor ; instead, you control a cursor. The cursor is green, with its colour slightly changing depending on which square it is over (eg, it'll be slightly blue when over a spawn point). It can also go anywhere on the level, without attention to walls.
 
-Note that when your cursor goes beyond the borders of the level, it turns grey and commands won't do anything.
+Note that when your cursor goes beyond the borders of the level, it turns grey and some commands won't do anything.
 
 To use the cursor place it on a square and use a command :
 
-Space is the "switch" or "quickswitch" command. If the square you are over is a wall, it will become a pathway, and vice-versa.
+Spacebar is the "switch" or "quickswitch" command. If the square you are over is a wall, it will become a pathway, and vice-versa.
 
-R is the "replace" command. When you press R over a square, the editor will prompt you for additional input : S to replace the square by a spawn point, O to replace it with an objective, W to replace it with a wall, and P to replace it with a pathway. After pressing one of these (or any other key, which will have no effect), you will be able to move the cursor and do other commands again.
+R is the "replace" command. When you press R over a square, the editor will prompt you for additional input : S to replace the square by a spawn point, O to replace it with an objective, W to replace it with a wall, and P to replace it with a pathway. After pressing one of these (or any other key, which won't have any effects), you will be able to move the cursor and do other commands again.
+
+B is the "brush" tool. It works very similarly to "replace", except that it stays active until you press a key other than the arrows. For instance, if you want to make a 10-squares long wall, press B, then W (for walls) and then move the cursor ; it'll automatically change the square colours beneath it.
 
 T is the selection tool. After you have pressed T, all other commands are disabled ; you can draw a rectangle using your arrow keys and press T again to confirm you like that particular rectangle. After you have confirmed the selection, you'll have a choice of operations to make on the selected squares : Change them all to paths/walls/objectives/spawns, or "reverse", which makes every path a wall and vice-versa. Pressing any other key at that point will simply cancel the selection.
 
@@ -67,12 +70,11 @@ Q is the "quit" command. A window will appear to ask for confirmation ; press Y 
 
 Finally, H is the "help" command, which brings up a reminder of the in-editor commands.
 
-More commands are to come !
 
 
 ** Creating levels : guidelines
 
-The level editor is non-restricting : you can place as many of whatever block you want, wherever you want (as long as it is within the borders of the level). However, you should follow some base guidelines if you want your levels to be playable. Obviously, spawn points should be linked to objectives, and so on. I will be mentioning some subtle points :
+The level editor is non-restrictive : you can place as many of whatever block you want, wherever you want (as long as it is within the borders of the level). However, you should follow some base guidelines if you want your levels to be playable. Obviously, spawn points should be linked to objectives, and so on. I will be mentioning some subtle points :
 
 - You can place as many objectives as you want, and reaching any of them will complete the level. Placing no objectives means the level cannot be completed.
 
@@ -81,7 +83,7 @@ The level editor is non-restricting : you can place as many of whatever block yo
 
 ** Level generator
 
-Additionally, this game comes bundled with a level generator ; this program will generate rough but playable, rectangular levels. Nothing is stopping you from using an automatically generated level as a base for your own levels.
+Additionally, this game comes bundled with a level generator ; this program will generate rough but playable, levels. Nothing is stopping you from using an automatically generated level as a base for your own levels.
 
 To use the level generator, simply execute levelGenerator.py as you would the game ; without any arguments, it will generate a 20*20 level and save it as "a.laby".
 
@@ -95,14 +97,19 @@ For concise and comprehensive list of options use the "help" argument.
 
 ** Rebinding keys
 
-Keys can fairly easily be rebound, as key input is only managed in one place. Simply find the appropriate piece of code (search for "curses.KEY_LEFT", for instance) and rebind the keys as you wish.
+In the game, keys can fairly easily be rebound, as key input is only managed in one place. Simply find the appropriate piece of code (search for "curses.KEY_LEFT", for instance) and rebind the keys as you wish.
 
 Two things to take into consideration : first, the game expects a character, so "w" (a string) won't work whereas ord("w") (a character from a string) will ; second, keep in mind it's fairly common to hit the capslock key when playing.
 
 
+This is not true for the editor, where key-managing functions are all over the place.
+
+
 ** Changing the player character
 
-The "character" defaults to a "x", but you can change this to whatever you like. Search for the first occurence of "playerCharacter" and change what it corresponds to.
+In game, the "character" defaults to a "x", but you can change this to whatever you like. Search for the first occurence of "playerCharacter" and change what it corresponds to.
+
+Once again, this is not true for the level editor.
 
 
 ** Level format
@@ -111,9 +118,9 @@ I use .laby files, but they are actually simple text files written in a special 
 
 The files only contain a grid of "0", "1", "2" and "3" : the "0" represent squares the player can go through, the "1" represent white squares (walls) the player can't pass. A "2" case is a target square : if the player reaches one of these, he wins the game. Finally, "3" is where the player spawns.
 
-When the game processes the levels, it takes every "2" into account, but only the first "3" it sees ; so you can only have one spawn point (other spawn points will still appear blue in game, but the player won't spawn on them). If there is no "3" square in the level file, the game will pick the last "0" case it read from the file as spawn point.
+When the game processes the levels, it takes every "2" into account, but only the first "3" it sees ; so you can only have one spawn point (other spawn points will still appear blue in game, but the player won't spawn on them). If there is no "3" square in the level file, the game will pick the last "0" case it read from the file (so the lower right one) as spawn point.
 
-Although this hasn't been tested, levels in theory don't have to be rectangular. But it is much easier to create a grid of "0" and work from there, hence why this hasn't been tested.
+Although this hasn't been tested, levels in theory don't have to be rectangular. But it is much easier to create a grid of "0" and work from there (without any drawbacks), hence why this hasn't been given further consideration.
 
 
 
@@ -150,3 +157,21 @@ How the generator works :
 4. Pick squares at random. If they're 1s, overwrite them with a 0.
 
 5. Write resulting table to disk
+
+
+Suggested Features
+===================
+
+** Game
+
+The game should have a "back to start" button.
+
+The game should support high scores
+
+The game should support levels playlists
+
+
+Level files should contain not only the pattern, but also additional metadata like what colours to use, what level is to follow this one, and what are the high scores
+
+
+Editor and game key bindings should be read from a configuration file.
