@@ -164,7 +164,7 @@ Suggested Features
 
 ** Game
 
-The game should have a "back to start" button.
+The game should have a "back to starting position" button.
 
 The game should support high scores
 
@@ -175,3 +175,9 @@ Level files should contain not only the pattern, but also additional metadata li
 
 
 Editor and game key bindings should be read from a configuration file.
+> dev note : I see no elegant solution to the problem caused by the fact we mix integer like KEY_LEFT, strings 'q'/'Q' and unicode integers
+
+
+The editor should have an "undo" button.
+
+The game & editor should have "square" graphics (like Bastet) : indeed, two spaces next to each other are much closer to a perfect square than just one space.
