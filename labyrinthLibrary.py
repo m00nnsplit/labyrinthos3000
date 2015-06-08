@@ -1,13 +1,21 @@
 # this library contains the Labyrinth class
 #
-# a Labyrinth has a bunch of attributes :
+# a Labyrinth has a bunch of attributes directly taken from the save file :
 # name (string)
 # author (string)
 # colors : dictionary binding color ID (0 to 3) to a list of 6 RGB values between 0 and 1000 (three for the foreground, two for the background, one to keep people asking)
 # highscores : list of [score:int, player:string] couples
 # nextLevel : filename for the level to follow (the game asks if you want to go to the next level at the end of the current one)
 # levelMap : a rectangular, 2D table representing the level with 0, 1, 2 and 3s
+
+# Plus some stuff :
 # levelSizeX and levelSizeY = two ints representing the map at its largest
+# writeComment = a string written as a comment when the labyrinth is saved
+
+# Methods :
+# default constructor : returns a sample labyrinth
+# constructor with (fileName) argument : reads <fileName> and returns the resulting labyrinth, or False if it couldn't be read
+# write(fileName) : writes the Labyrinth as <fileName>
 
 from datetime import datetime
 
@@ -118,13 +126,18 @@ class Labyrinth :
 
 
 
-	def writeLabyrinth(self, fileName) :
+	def write(self, fileName) :
 		# saves a labyrinth as <fileName>
 
 		fileStream = open(fileName, "w")
 
 		fileStream.write("# Generated : "+datetime.now().isoformat(' ')+"\n")
 		
+		try :
+			fileStream.write("# "+self.writeComment+"\n")
+		except AttributeError :
+			pass		
+	
 		try :
 			fileStream.write("name "+self.name+"\n")
 		except AttributeError :

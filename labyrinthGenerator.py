@@ -6,6 +6,7 @@ from sys import argv, stderr
 import random
 from time import time
 from math import floor
+from labyrinthLibrary import *
 
 # argument processing
 
@@ -215,14 +216,18 @@ while kPokingHoles < ((labyWidth*labyHeight)) : # labyWidth*labyHeight is an arb
 	kPokingHoles = kPokingHoles + 1
 
 # now we write to file
-fileStream = open(outputFile, "w")
-for y in range(labyHeight) :
-	workingLine = ""
-	for x in range(labyWidth) :
-		workingLine = workingLine + str(myLabyrinth[y][x])
-	fileStream.write(workingLine+"\n")
 
-fileStream.close()
+# adapted for the new file format : now we create a Labyrinth object and call the library for writing
 
+outputLabyrinth = Labyrinth()
+outputLabyrinth.writeComment = "Labyrinth "+str(labyHeight)+" squares tall, "+str(labyWidth)+" squares width, with seed "+labySeed
+outputLabyrinth.name = "Labyrinth of seed "+labySeed
+outputLabyrinth.author = "Labyrinth Generator"
+outputLabyrinth.levelSizeX = labyWidth
+outputLabyrinth.levelSizeY = labyHeight
+outputLabyrinth.levelMap = myLabyrinth
+outputLabyrinth.highscores = []
+
+outputLabyrinth.write(outputFile)
 
 print("Labyrinth written to "+outputFile+". It took "+str(kPathfinding)+" loops to find a way from the spawn point to the objective, plus "+str(kPokingHoles)+" loops to poke holes in the thing so it would look better. Seed was \""+labySeed+"\" with "+str(labyWidth)+" squares of width and "+str(labyHeight)+" squares of height.")
