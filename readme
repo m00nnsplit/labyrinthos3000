@@ -116,7 +116,24 @@ Once again, this is not true for the level editor.
 
 I use .laby files, but they are actually simple text files written in a special format.
 
-The files only contain a grid of "0", "1", "2" and "3" : the "0" represent squares the player can go through, the "1" represent white squares (walls) the player can't pass. A "2" case is a target square : if the player reaches one of these, he wins the game. Finally, "3" is where the player spawns.
+I should mention that empty lines are ignored and lines starting with "#" are comments and ignored as well.
+
+First come a bunch of keywords, they can pretty much come in any order. Spaces are used to separate keywords from arguments, and arguments from other arguments. Some should be only written once :
+name <level name>, any characters being allowed for the level name
+author <author name>, that's for you, same rules as the name
+nextlevel <file name>, that's a suggestion of a labyrinth to come after this one. Specify a file name, and the game will ask the player if they want to play it on game over.
+
+Two can be written as many times as necessary :
+color <color num> <RF> <GF> <BF> <RF> <GF> <BF>
+This defines a new color pair ; <color num> is the type of block to get that color pair, where 0 the pathways, 1 the walls, 2 the objectives, 3 the spawn points. Then come three values between 0 and 1000 for the foreground color, and three for the background.
+Obviously, you shouldn't be writing more than four of these.
+
+highscore <score> <player>
+This defines a highscore ; <score> is the number of moves it took, and <player> is a string (no spaces) with the name of the player. Order of the high scores is unimportant. You can put in as many as you want.
+
+Finally, the "map" keyword signals we're going to describe the level. It's special, since map is immediatly followed by a newline. After the level description, the "end" keyword signals both the end of the level description and the file itself.
+
+Between map and end is a grid of "0", "1", "2" and "3" : the "0" represent squares the player can go through, the "1" represent white squares (walls) the player can't pass. A "2" case is a target square : if the player reaches one of these, he wins the game. Finally, "3" is where the player spawns.
 
 When the game processes the levels, it takes every "2" into account, but only the first "3" it sees ; so you can only have one spawn point (other spawn points will still appear blue in game, but the player won't spawn on them). If there is no "3" square in the level file, the game will pick the last "0" case it read from the file (so the lower right one) as spawn point.
 
@@ -126,6 +143,15 @@ Although this hasn't been tested, levels in theory don't have to be rectangular.
 
  Developer's guide
 ===================
+
+** Library
+
+The library defines a Labyrinth class, which more or less corresponds to the save file. It's exclusively compatible with the new save file format (with the metadata).
+
+In addition to these attributes, the class also has reading and parsing methods.
+
+
+** Game
 
 It's hard to write to stdout when inside ncurses, so this program does :
 
@@ -181,3 +207,5 @@ Editor and game key bindings should be read from a configuration file.
 The editor should have an "undo" button.
 
 The game & editor should have "square" graphics (like Bastet) : indeed, two spaces next to each other are much closer to a perfect square than just one space.
+
+The game, instead of stopping the count at 9999, should replace the number of moves by "too many" when it's above a certain threshold.

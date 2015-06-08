@@ -7,6 +7,7 @@ import curses
 from math import floor
 from time import sleep
 from sys import argv, stdout, stderr
+from labyrinthLibrary import *
 
 def errorOutput() :
 	#this is because I have difficulties writing to stdout when curses is active
@@ -28,14 +29,7 @@ def main(standardScreen) :
 
 	screenMaxY, screenMaxX = standardScreen.getmaxyx()
 
-	curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_WHITE) # walls
-	curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_RED)   # objective
-	curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLUE)  # spawn point
-	curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK)  # boundaries
 	
-	curses.init_pair(9, curses.COLOR_WHITE, curses.COLOR_GREEN) # player character
-
-
 	# files will contain schematics for levels
 	# labyrinths (2D grids) are to be represented as 2D tables
 	# 0 is a path, 1 is a wall, 2 is the objective, 3 is the spawn point
@@ -43,21 +37,7 @@ def main(standardScreen) :
 	# this is the default level, if our program isn't called with an argument
 	if len(argv) == 1 :
 		labyrinthLoadedFlag = False
-		myLabyrinth = [
-			[0,1,3,1,0,0,0,0,1,0],
-			[0,1,0,1,0,0,0,1,1,0],
-			[0,1,0,0,0,1,0,0,0,0],
-			[0,1,1,1,1,1,0,1,1,1],
-			[0,0,0,0,0,0,0,0,0,0],
-			[0,1,0,1,1,1,1,0,0,0],
-			[1,1,0,1,0,0,1,0,0,0],
-			[0,0,0,1,0,1,1,0,1,0],
-			[0,1,0,0,0,1,0,0,1,0],
-			[0,1,0,1,0,2,0,1,1,0],
-			]
-
-		levelSizeY = 10
-		levelSizeX = 10	
+		myLabyrinth = Labyrinth()
 	
 	else :
 		# that's where the fun begins
@@ -68,28 +48,21 @@ def main(standardScreen) :
 		if fileName == "-h" or fileName == "-help" or fileName == "--help" or fileName == "help" : # I'm sure there was a better way, yes
 			
 			return("help")
-		try :
-			fileStream = open(fileName)
-		except OSError as readError :
-			return("readError")
-
-		workingLine="--"
-		myLabyrinth = []
-		levelSizeY = 0
-		levelSizeX = 0
-		while workingLine != "" :
-			workingLine = fileStream.readline().strip()
-			if workingLine == "" :
-				break # no seriously, else there's a last line with only a \n
-			newLabyLine = []
-			for i in range(len(workingLine)) :
-				newLabyLine.append(int(workingLine[i]))
-				if len(newLabyLine) > levelSizeX :
-					levelSizeX = len(newLabyLine)
-			myLabyrinth.append(newLabyLine)
-			levelSizeY = levelSizeY + 1 
-		fileStream.close()
 		
+		myLabyrinth = Labyrinth(fileName)
+		if myLabyrinth == False :
+			return("readError")
+	
+	# TODO : make us of the color metadata by selecting colors from the file.
+	# it's more complex than initially thought it seems
+		
+	curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_WHITE) # walls
+	curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_RED)   # objective
+	curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLUE)  # spawn point
+	curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK)  # boundaries
+	
+	curses.init_pair(9, curses.COLOR_WHITE, curses.COLOR_GREEN) # player character
+
 
 	# greetings
 
@@ -98,7 +71,7 @@ def main(standardScreen) :
 	
 	if labyrinthLoadedFlag == True :
 		standardScreen.addstr(4,1, "A labyrinth has been loaded :".center(screenMaxX-1))	
-		standardScreen.addstr(5,1, fileName.center(screenMaxX-1))
+		standardScreen.addstr(5,1, myLabyrinth.name.center(screenMaxX-1))
 	else :
 		standardScreen.addstr(4,1, "Using the default labyrinth.".center(screenMaxX-1))	
 
@@ -120,7 +93,7 @@ def main(standardScreen) :
 	titleWin = standardScreen.subwin(3, screenMaxX, 0,0)
 	titleWin.border()
 	if labyrinthLoadedFlag == True :
-		titleWin.addstr(1,1, fileName)
+		titleWin.addstr(1,1, myLabyrinth.name)
 	else :
 		titleWin.addstr(1,1, "No labyrinth loaded")	
 	titleWin.addstr(1, screenMaxX-5, "0")	
@@ -128,35 +101,35 @@ def main(standardScreen) :
 	# drawing the labyrinth
 	
 	#myPad = standardScreen.subpad((screenMaxY-2), (screenMaxX-2), 1, 1)
-	#myPad = standardScreen.subpad(levelSizeY+2, levelSizeX+2, 1, 1)
-	myPad = curses.newpad(levelSizeY+10, levelSizeX+10)
+	#myPad = standardScreen.subpad(myLabyrinth.levelSizeY+2, myLabyrinth.levelSizeX+2, 1, 1)
+	myPad = curses.newpad(myLabyrinth.levelSizeY+10, myLabyrinth.levelSizeX+10)
 	standardScreen.border()
 
 	startCoordSetFlag = False #for the starting position (marked 3 on the level layout)
 		
-	for y in range(0, levelSizeY) :
-		for x in range(0, levelSizeX) :
-			if myLabyrinth[y][x] == 1 :
+	for y in range(0, myLabyrinth.levelSizeY) :
+		for x in range(0, myLabyrinth.levelSizeX) :
+			if myLabyrinth.levelMap[y][x] == 1 :
 				myPad.addstr(y,x, " ", curses.color_pair(1))
-			elif myLabyrinth[y][x] == 0 : 
+			elif myLabyrinth.levelMap[y][x] == 0 : 
 				myPad.addstr(y,x, " ")
 				if startCoordSetFlag == False :
 					stardCoordY = y
 					startCoordX = x
 					# this means that if there isn't a starting position defined, we'll at least be starting somewhere without walls
-			elif myLabyrinth[y][x] == 2 :
+			elif myLabyrinth.levelMap[y][x] == 2 :
 				myPad.addstr(y,x, " ", curses.color_pair(2))
-			elif myLabyrinth[y][x] == 3 :
+			elif myLabyrinth.levelMap[y][x] == 3 :
 				myPad.addstr(y,x, " ", curses.color_pair(3))
 				startCoordY = y
 				startCoordX = x
 				startCoordSetFlag = True
 	
 	# adding boundaries, in case the labyrinth is smaller than the drawing surface
-	for y in range(0, (levelSizeY+1)) :
-		myPad.addstr(y,levelSizeX, "+", curses.color_pair(4))
-	for x in range(0, levelSizeX) :
-		myPad.addstr(levelSizeY, x, "+", curses.color_pair(4))	
+	for y in range(0, (myLabyrinth.levelSizeY+1)) :
+		myPad.addstr(y,myLabyrinth.levelSizeX, "+", curses.color_pair(4))
+	for x in range(0, myLabyrinth.levelSizeX) :
+		myPad.addstr(myLabyrinth.levelSizeY, x, "+", curses.color_pair(4))	
 
 	playerCharacter = "x" # yup. "⛇", "☻" or "x" ? Your choice ! I do recommend a unicode-supporting terminal though.	
 
@@ -177,31 +150,31 @@ def main(standardScreen) :
 		userInput = standardScreen.getch()
 
 		# erasing the previous position
-		if myLabyrinth[yCoord][xCoord] == 0 : 
+		if myLabyrinth.levelMap[yCoord][xCoord] == 0 : 
 			myPad.addstr(yCoord, xCoord, " ") 
-		elif myLabyrinth[yCoord][xCoord] == 2 :
+		elif myLabyrinth.levelMap[yCoord][xCoord] == 2 :
 			myPad.addstr(yCoord, xCoord, " ", curses.color_pair(2))
-		elif myLabyrinth[yCoord][xCoord] == 3 :
+		elif myLabyrinth.levelMap[yCoord][xCoord] == 3 :
 			myPad.addstr(yCoord, xCoord, " ", curses.color_pair(3))
 		
 		# going forward
 		if userInput == curses.KEY_LEFT and xCoord > 0 :
-			if myLabyrinth[yCoord][xCoord-1] != 1 :
+			if myLabyrinth.levelMap[yCoord][xCoord-1] != 1 :
 				xCoord = xCoord - 1
 				if nbMoves < 10000 : #fuck the guy who'll try to crash through excessive movement
 					nbMoves = nbMoves+1
-		elif userInput == curses.KEY_RIGHT and xCoord < (levelSizeX-1) :
-			if myLabyrinth[yCoord][xCoord+1] != 1 : 
+		elif userInput == curses.KEY_RIGHT and xCoord < (myLabyrinth.levelSizeX-1) :
+			if myLabyrinth.levelMap[yCoord][xCoord+1] != 1 : 
 				xCoord = xCoord + 1
 				if nbMoves < 10000 :
 					nbMoves = nbMoves+1
-		elif userInput == curses.KEY_DOWN and yCoord < (levelSizeY-1) :
-			if myLabyrinth[yCoord+1][xCoord] != 1 : 
+		elif userInput == curses.KEY_DOWN and yCoord < (myLabyrinth.levelSizeY-1) :
+			if myLabyrinth.levelMap[yCoord+1][xCoord] != 1 : 
 				yCoord = yCoord + 1
 				if nbMoves < 10000 :
 					nbMoves = nbMoves+1
 		elif userInput == curses.KEY_UP and yCoord > 0 :
-			if myLabyrinth[yCoord-1][xCoord] != 1 : 
+			if myLabyrinth.levelMap[yCoord-1][xCoord] != 1 : 
 				yCoord = yCoord - 1
 				if nbMoves < 10000 :
 					nbMoves = nbMoves+1
@@ -212,7 +185,7 @@ def main(standardScreen) :
 			standardScreen.clear()
 			titleWin.border()
 			if labyrinthLoadedFlag == True :
-				titleWin.addstr(1,1, fileName)
+				titleWin.addstr(1,1, myLabyrinth.name)
 			else :
 				titleWin.addstr(1,1, "No labyrinth loaded")	
 
@@ -220,21 +193,21 @@ def main(standardScreen) :
 			myPad.refresh(int(yCoord-((screenMaxY-5)/2)), int(xCoord-((screenMaxX-3)/2)), 3, 1, screenMaxY-2, screenMaxX-2)
 			standardScreen.border()
 
-			for y in range(0, (levelSizeY)) :
-				for x in range(0, (levelSizeX)) :
-					if myLabyrinth[y][x] == 1 :
+			for y in range(0, (myLabyrinth.levelSizeY)) :
+				for x in range(0, (myLabyrinth.levelSizeX)) :
+					if myLabyrinth.levelMap[y][x] == 1 :
 						myPad.addstr(y,x, " ", curses.color_pair(1))
-					elif myLabyrinth[y][x] == 0 : 
+					elif myLabyrinth.levelMap[y][x] == 0 : 
 						myPad.addstr(y,x, " ")
-					elif myLabyrinth[y][x] == 2 :
+					elif myLabyrinth.levelMap[y][x] == 2 :
 						myPad.addstr(y,x, " ", curses.color_pair(2))
-					elif myLabyrinth[y][x] == 3 :
+					elif myLabyrinth.levelMap[y][x] == 3 :
 						myPad.addstr(y,x, " ", curses.color_pair(3))
 				
-			for y in range(0, (levelSizeY+1)) :
-				myPad.addstr(y,levelSizeX, "+", curses.color_pair(4))
-			for x in range(0, levelSizeX) :
-				myPad.addstr(levelSizeY, x, "+", curses.color_pair(4))	
+			for y in range(0, (myLabyrinth.levelSizeY+1)) :
+				myPad.addstr(y,myLabyrinth.levelSizeX, "+", curses.color_pair(4))
+			for x in range(0, myLabyrinth.levelSizeX) :
+				myPad.addstr(myLabyrinth.levelSizeY, x, "+", curses.color_pair(4))	
 
 			if xCoord > (screenMaxX - 2) or yCoord > (screenMaxY - 2) :
 				xCoord = startCoordX 
@@ -249,7 +222,7 @@ def main(standardScreen) :
 		
 
 
-		if myLabyrinth[yCoord][xCoord] == 2 : #yay !
+		if myLabyrinth.levelMap[yCoord][xCoord] == 2 : #yay !
 			myPad.addstr(yCoord, xCoord, playerCharacter, curses.color_pair(2))			
 			standardScreen.refresh()
 			myPad.refresh(int(yCoord-((screenMaxY-5)/2)), int(xCoord-((screenMaxX-3)/2)), 3, 1, screenMaxY-2, screenMaxX-2)
@@ -260,16 +233,43 @@ def main(standardScreen) :
 				winString0 = "You Won ! Congratulations !"
 				winString1 = "You did it in "+str(nbMoves)+" moves !"
 				winString2 = "Press Q to quit."
-				lengthOfLongestString = max(len(winString0), len(winString1), len(winString2))
 				
-				youWonWindow = standardScreen.subwin(5, lengthOfLongestString+2 ,floor(screenMaxY/2), floor(screenMaxX/2-(lengthOfLongestString/2)))
+				try : 
+					myLabyrinth.highscores.sort()
+					winString3 = " HIGH SCORES "
+					if len(myLabyrinth.highscores) > 0 :
+						winString4 = str(myLabyrinth.highscores[0][0])+" : "+myLabyrinth.highscores[0][1]
+					else :
+						winString4 = "None"
+					if len(myLabyrinth.highscores) > 1 :
+						winString5 = str(myLabyrinth.highscores[1][0])+" : "+myLabyrinth.highscores[1][1]
+					else :
+						winString5 = "None"
+					if len(myLabyrinth.highscores) > 2 :
+						winString6 = str(myLabyrinth.highscores[2][0])+" : "+myLabyrinth.highscores[2][1]
+						# fuck number 4
+					else :
+						winString6 = "None"		
+				except AttributeError :
+					winString3 = " HIGH SCORES "
+					winString4 = "None"
+					winString5 = "None"
+					winString6 = "None"
+
+				lengthOfLongestString = max(len(winString0), len(winString1), len(winString2),len(winString3),len(winString4),len(winString5),len(winString6))
+				
+				youWonWindow = standardScreen.subwin(9, lengthOfLongestString+2 ,floor(screenMaxY/2-4.5), floor(screenMaxX/2-(lengthOfLongestString/2)))
 				# all that for centering
 
-				 
+
 				youWonWindow.border()
 				youWonWindow.addstr(1,1,winString0.center(lengthOfLongestString))
 				youWonWindow.addstr(2,1,winString1.center(lengthOfLongestString))
 				youWonWindow.addstr(3,1,winString2.center(lengthOfLongestString))
+				youWonWindow.addstr(4,1,winString3.center(lengthOfLongestString, "-"))
+				youWonWindow.addstr(5,1,winString4.center(lengthOfLongestString))
+				youWonWindow.addstr(6,1,winString5.center(lengthOfLongestString))
+				youWonWindow.addstr(7,1,winString6.center(lengthOfLongestString))
 				youWonWindow.refresh()
 				
 				sleep(1)
@@ -280,7 +280,7 @@ def main(standardScreen) :
 				youWonWindow.redrawwin()
 				youWonWindow.refresh()
 				standardScreen.refresh()
-		elif myLabyrinth[yCoord][xCoord] == 3 : #that's the spawn point, how ambitious
+		elif myLabyrinth.levelMap[yCoord][xCoord] == 3 : #that's the spawn point, how ambitious
 			myPad.addstr(yCoord, xCoord, playerCharacter, curses.color_pair(3))	
 		else :
 			myPad.addstr(yCoord, xCoord, playerCharacter, curses.color_pair(9))
