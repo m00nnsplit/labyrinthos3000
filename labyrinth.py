@@ -9,20 +9,7 @@ from time import sleep
 from sys import argv, stdout, stderr
 from labyrinthLibrary import *
 
-def errorOutput() :
-	#this is because I have difficulties writing to stdout when curses is active
-
-	errorType = curses.wrapper(main)
 	
-	if errorType == "help" :
-		print("Please, run this with either no arguments or one filename pointing to a valid level file.\n\nYou could also check out the readme file !")
-		exit()
-	
-	elif errorType == "readError" :
-		stderr.write("Error when reading the arguments.\n\nReminder : you should specify no argument (to use the default level) or only one (an existing, valid level file). Maybe did you misspell the name of the file ? You can also call this program with the help argument, or read the readme file.\n\nThis error does not cover an error when parsing the file, only when opening it.\n")
-		exit()	
-
-
 def main(standardScreen) :
 	curses.curs_set(False)
 	curses.use_default_colors()
@@ -291,4 +278,19 @@ def main(standardScreen) :
 		standardScreen.refresh()
 		myPad.refresh(int(yCoord-((screenMaxY-5)/2)), int(xCoord-((screenMaxX-3)/2)), 3, 1, screenMaxY-2, screenMaxX-2)
 
-errorOutput()
+
+
+
+#this is because I have difficulties writing to stdout when curses is active
+
+errorType = curses.wrapper(main)
+
+if errorType == "help" :
+	print("Please, run this with either no arguments or one filename pointing to a valid level file.\n\nYou could also check out the readme file !")
+	exit()
+
+elif errorType == "readError" :
+	stderr.write("Error when reading the arguments.\n\nReminder : you should specify no argument (to use the default level) or only one (an existing, valid level file). Maybe did you misspell the name of the file ? You can also call this program with the help argument, or read the readme file.\n\nThis error does not cover an error when parsing the file, only when opening it.\n")
+	exit()	
+
+

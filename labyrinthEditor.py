@@ -6,33 +6,6 @@ from os.path import exists
 from math import floor
 from time import sleep
 
-def errorOutput() :
-	# same idea as in the main labyrinth game.. curses blocks output elseway, and I like my errors
-
-	errorType = curses.wrapper(main)
-	
-	if errorType == "noParameters" :
-		stderr.write("No parameters were given. Please, use \""+argv[0]+" help\" to get precisions.\n")
-		exit(1)
-
-	if errorType == "getHelp" :
-		print("This program is a level editor for the labyrinth game I made.")
-		print("Options :")
-		print("-f (followed by a string) : name of file to open and/or save to (overwrites other options)")
-		print("You can also pass a filename directly if it's the only argument")
-		print("-h (followed by a number) : height of a new (blank) level to edit (defaults to 20)")
-		print("-w (followed by a number) : width of a new (blank) level to edit (defaults to 20)")
-		print("-b (followed by a number) : if you are opening a new level, what type of block to fill it with (0 -> pathways, 1 -> walls, defaults to pathways)")
-		print("\nCheck out the readme/manual for more help !")
-		exit()
-
-	if errorType == "readError" :
-		stderr.write("Error when reading the arguments.\n\nReminder : you should specify no argument (to edit a blank level) or only one (an existing, valid level file). Maybe did you misspell the name of the file ? You can also call this program with the help argument, or read the readme file.\n\nThis error does not cover an error when parsing the file, only when opening it.\n")
-		exit(2)
-
-	else :
-		print(errorType)
-
 def main(standardScreen) :
 	curses.curs_set(False)
 	curses.use_default_colors()
@@ -618,9 +591,31 @@ def main(standardScreen) :
 		myPad.refresh(int(yCoord-((screenMaxY-5)/2)), int(xCoord-((screenMaxX-3)/2)), 1, 1, screenMaxY-5, screenMaxX-2)	
 
 
-errorOutput()	
 
 
+# same idea as in the main labyrinth game.. curses blocks output elseway, and I like my errors
 
+errorType = curses.wrapper(main)
 
+if errorType == "noParameters" :
+	stderr.write("No parameters were given. Please, use \""+argv[0]+" help\" to get precisions.\n")
+	exit(1)
+
+if errorType == "getHelp" :
+	print("This program is a level editor for the labyrinth game I made.")
+	print("Options :")
+	print("-f (followed by a string) : name of file to open and/or save to (overwrites other options)")
+	print("You can also pass a filename directly if it's the only argument")
+	print("-h (followed by a number) : height of a new (blank) level to edit (defaults to 20)")
+	print("-w (followed by a number) : width of a new (blank) level to edit (defaults to 20)")
+	print("-b (followed by a number) : if you are opening a new level, what type of block to fill it with (0 -> pathways, 1 -> walls, defaults to pathways)")
+	print("\nCheck out the readme/manual for more help !")
+	exit()
+
+if errorType == "readError" :
+	stderr.write("Error when reading the arguments.\n\nReminder : you should specify no argument (to edit a blank level) or only one (an existing, valid level file). Maybe did you misspell the name of the file ? You can also call this program with the help argument, or read the readme file.\n\nThis error does not cover an error when parsing the file, only when opening it.\n")
+	exit(2)
+
+else :
+	print(errorType)
 
