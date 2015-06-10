@@ -131,7 +131,7 @@ class Labyrinth :
 
 		fileStream = open(fileName, "w")
 
-		fileStream.write("# Generated : "+datetime.now().isoformat(' ')+"\n")
+		fileStream.write("# Written : "+datetime.now().isoformat(' ')+"\n")
 		
 		try :
 			fileStream.write("# "+self.writeComment+"\n")

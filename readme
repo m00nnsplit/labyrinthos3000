@@ -153,12 +153,7 @@ In addition to these attributes, the class also has reading and parsing methods.
 
 ** Game
 
-It's hard to write to stdout when inside ncurses, so this program does :
-
-execute errorOutput
- -> which executes curses.wrapper(main), expecting a returned value
-   -> which sets up curses and runs main(), returning what it returns
-     -> which returns things only on errors
+It's hard to write to stdout when inside ncurses, so this program is waiting for what main() will return to print errors. Same deal with the editor.
 
 This game uses ncurses. It draws a title window and a pad beneath it, and enters a loop where it waits for user input to continue (ie, process the consequences of the input and refresh the display, before waiting again).
 
@@ -197,7 +192,7 @@ The game should support high scores
 The game should support levels playlists
 
 
-Level files should contain not only the pattern, but also additional metadata like what colours to use, what level is to follow this one, and what are the high scores
+(DONE !) Level files should contain not only the pattern, but also additional metadata like what colours to use, what level is to follow this one, and what are the high scores
 
 
 Editor and game key bindings should be read from a configuration file.
