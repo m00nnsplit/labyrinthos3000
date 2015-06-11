@@ -460,13 +460,14 @@ def main(standardScreen) :
 			helpString2 = "R : replace block"
 			helpString3 = "B : brush tool"
 			helpString4 = "T : selection tool"
-			helpString5 = "S : save to file"
-			helpString6 = "Q : quit"
-			helpString7 = "H : this help"
-			helpString8 = "Press any key to close this window."
+			helpString5 = "D : edit metadata"
+			helpString6 = "S : save to file"
+			helpString7 = "Q : quit"
+			helpString8 = "H : this help"
+			helpString9 = "Press any key to close this window."
 
-			lengthOfLongestString=max(len(helpString0),len(helpString1),len(helpString2),len(helpString3),len(helpString4),len(helpString5),len(helpString6), len(helpString7), len(helpString8))
-			helpWindow = standardScreen.subwin(11, lengthOfLongestString+2, floor(screenMaxY/2-5.5), floor(screenMaxX/2-(lengthOfLongestString/2)))
+			lengthOfLongestString=max(len(helpString0),len(helpString1),len(helpString2),len(helpString3),len(helpString4),len(helpString5),len(helpString6), len(helpString7), len(helpString8),len(helpString9))
+			helpWindow = standardScreen.subwin(12, lengthOfLongestString+2, floor(screenMaxY/2-6), floor(screenMaxX/2-(lengthOfLongestString/2)))
 			helpWindow.border()
 			helpWindow.addstr(1,1,helpString0.center(lengthOfLongestString))
 			helpWindow.addstr(2,1,helpString1.ljust(lengthOfLongestString))
@@ -476,7 +477,8 @@ def main(standardScreen) :
 			helpWindow.addstr(6,1,helpString5.ljust(lengthOfLongestString))
 			helpWindow.addstr(7,1,helpString6.ljust(lengthOfLongestString))
 			helpWindow.addstr(8,1,helpString7.ljust(lengthOfLongestString))			
-			helpWindow.addstr(9,1,helpString8.center(lengthOfLongestString))
+			helpWindow.addstr(9,1,helpString8.ljust(lengthOfLongestString))
+			helpWindow.addstr(10,1,helpString9.center(lengthOfLongestString))
 
 			helpWindow.refresh()
 			sleep(0.5)
@@ -488,6 +490,203 @@ def main(standardScreen) :
 			titleWin.border()
 			titleWin.refresh()
 			standardScreen.refresh()
+
+		if userInput == ord('d') or userInput == ord('D') :
+			# this "metadata" window presents and offer to edit level name, author name and level to follow
+			
+			dataString0 = "METADATA :"
+			dataString1 = "Level name (L to edit) :"
+			try :
+				dataString2 = "  "+myLabyrinth.name
+			except AttributeError :
+				dataString2 = "  (None set)"
+			dataString3 = "Author name (A to edit) :"
+			try :
+				dataString4 = "  "+myLabyrinth.author
+			except AttributeError :
+				dataString4 = "  (None set)"
+			dataString5 = "Level to follow (F to edit) :"
+			try :
+				dataString6 = "  "+myLabyrinth.nextLevel
+			except AttributeError :
+				dataString6 = "  (None set)"
+			
+			dataString7 = "Press any other key to close this window."
+			
+			lengthOfLongestString=max(len(dataString0),len(dataString1),len(dataString2),len(dataString3),len(dataString4),len(dataString5), len(dataString6), len(dataString7))
+			if lengthOfLongestString<30 :
+				lengthOfLongestString = 30
+
+			dataWindow = standardScreen.subwin(10, lengthOfLongestString+2, floor(screenMaxY/2-5), floor(screenMaxX/2-(lengthOfLongestString/2)))
+			dataWindow.border()
+			dataWindow.addstr(1,1,dataString0.center(lengthOfLongestString))
+			dataWindow.addstr(2,1,dataString1.ljust(lengthOfLongestString))
+			dataWindow.addstr(3,1,dataString2.ljust(lengthOfLongestString))
+			dataWindow.addstr(4,1,dataString3.ljust(lengthOfLongestString))
+			dataWindow.addstr(5,1,dataString4.ljust(lengthOfLongestString))
+			dataWindow.addstr(6,1,dataString5.ljust(lengthOfLongestString))
+			dataWindow.addstr(7,1,dataString6.ljust(lengthOfLongestString))
+			dataWindow.addstr(8,1,dataString7.center(lengthOfLongestString))
+
+			dataWindow.refresh()
+			# I'm reluctant to use curses.textpad.TextPad, because Ctrl+G to accept is not intuitive nor coherent with the rest of the program.
+			secondInput = standardScreen.getch()
+
+			if secondInput == (ord('l') or ord('L')) :
+				levelNameString0 = "Level name : "+dataString2
+				levelNameString1 = "Enter the new name :"
+				levelNameString2 = "(press Enter to confirm)"
+				lengthOfLongestString = max(len(levelNameString0),len(levelNameString1),len(levelNameString2))
+
+				levelNameWindow = standardScreen.subwin(6,lengthOfLongestString+2, floor(screenMaxY/2-3), floor(screenMaxX/2-(lengthOfLongestString/2)))
+				levelNameWindow.border()
+
+				levelNameWindow.addstr(1,1,levelNameString0.center(lengthOfLongestString))
+				levelNameWindow.addstr(2,1,levelNameString1.center(lengthOfLongestString))
+				levelNameWindow.addstr(3,1,"".center(lengthOfLongestString)) 
+				levelNameWindow.addstr(4,1,levelNameString2.center(lengthOfLongestString))
+				
+				#newLevelName = levelNameWindow.getstr(3,1,lengthOfLongestString)
+				# getstr() doesn't provide instant feedback.. REAL men develop their own text inputs.
+				kursorX = 1
+				levelNameWindow.move(3,kursorX)
+				newLevelName = ""
+				levelNameWindow.refresh()	
+				curses.curs_set(True)
+				secondInput = standardScreen.getch()
+				while secondInput !=ord("\n") :
+					if secondInput == curses.KEY_BACKSPACE : #doc says it's unreliable
+						if kursorX>1 :
+							levelNameWindow.addstr(3, kursorX-1," ") # mask the deleted character
+							kursorX = kursorX -1
+							levelNameWindow.move(3,kursorX)
+							newLevelName = newLevelName[0:len(newLevelName)-1]
+
+					elif len(newLevelName) < lengthOfLongestString :
+						newLevelName = newLevelName+chr(secondInput)
+						kursorX = kursorX + 1
+						levelNameWindow.move(3,kursorX)
+						levelNameWindow.addstr(3, kursorX-1,chr(secondInput))
+					levelNameWindow.refresh()
+					secondInput = standardScreen.getch()
+						
+				if newLevelName != "" :
+					myLabyrinth.name = str(newLevelName)
+					titleWin.addstr(2,1,("Name changed to "+str(myLabyrinth.name)).ljust(screenMaxX-2))
+				else :
+					titleWin.addstr(2,1,"Rejected empty name".ljust(screenMaxX-2))
+				curses.curs_set(False)
+				levelNameWindow.clear()
+				levelNameWindow.redrawwin()
+				levelNameWindow.refresh()
+
+			elif secondInput == (ord('a') or ord('A')) :
+				levelAuthorString0 = "Author name : "+dataString4
+				levelAuthorString1 = "Enter the new name :"
+				levelAuthorString2 = "(press Enter to confirm)"
+				lengthOfLongestString = max(len(levelAuthorString0),len(levelAuthorString1),len(levelAuthorString2))
+
+				levelAuthorWindow = standardScreen.subwin(6,lengthOfLongestString+2, floor(screenMaxY/2-3), floor(screenMaxX/2-(lengthOfLongestString/2)))
+				levelAuthorWindow.border()
+
+				levelAuthorWindow.addstr(1,1,levelAuthorString0.center(lengthOfLongestString))
+				levelAuthorWindow.addstr(2,1,levelAuthorString1.center(lengthOfLongestString))
+				levelAuthorWindow.addstr(3,1,"".center(lengthOfLongestString)) 
+				levelAuthorWindow.addstr(4,1,levelAuthorString2.center(lengthOfLongestString))
+				
+				kursorX = 1
+				levelAuthorWindow.move(3,kursorX)
+				newAuthorName = ""
+				levelAuthorWindow.refresh()	
+				curses.curs_set(True)
+				secondInput = standardScreen.getch()
+				while secondInput !=ord("\n") :
+					if secondInput == curses.KEY_BACKSPACE : #doc says it's unreliable
+						if kursorX>1 :
+							levelAuthorWindow.addstr(3, kursorX-1," ") # mask the deleted character
+							kursorX = kursorX -1
+							levelAuthorWindow.move(3,kursorX)
+							newAuthorName = newAuthorName[0:len(newAuthorName)-1]
+
+					elif len(newAuthorName) < lengthOfLongestString :
+						newAuthorName = newAuthorName+chr(secondInput)
+						kursorX = kursorX + 1
+						levelAuthorWindow.move(3,kursorX)
+						levelAuthorWindow.addstr(3, kursorX-1,chr(secondInput))
+					levelAuthorWindow.refresh()
+					secondInput = standardScreen.getch()
+						
+				if newAuthorName != "" :
+					myLabyrinth.author = str(newAuthorName)
+					titleWin.addstr(2,1,("Author changed to "+str(myLabyrinth.author)).ljust(screenMaxX-2))
+				else :
+					titleWin.addstr(2,1,"Rejected empty name".ljust(screenMaxX-2))
+				curses.curs_set(False)
+				levelAuthorWindow.clear()
+				levelAuthorWindow.redrawwin()
+				levelAuthorWindow.refresh()
+
+			elif secondInput == (ord('f') or ord('F')) :
+				levelFollowerString0 = "Level to follow : "+dataString4
+				levelFollowerString1 = "Enter the new filename :"
+				levelFollowerString2 = "(press Enter to confirm)"
+				lengthOfLongestString = max(len(levelFollowerString0),len(levelFollowerString1),len(levelFollowerString2))
+
+				levelFollowerWindow = standardScreen.subwin(6,lengthOfLongestString+2, floor(screenMaxY/2-3), floor(screenMaxX/2-(lengthOfLongestString/2)))
+				levelFollowerWindow.border()
+
+				levelFollowerWindow.addstr(1,1,levelFollowerString0.center(lengthOfLongestString))
+				levelFollowerWindow.addstr(2,1,levelFollowerString1.center(lengthOfLongestString))
+				levelFollowerWindow.addstr(3,1,"".center(lengthOfLongestString)) 
+				levelFollowerWindow.addstr(4,1,levelFollowerString2.center(lengthOfLongestString))
+				
+				kursorX = 1
+				levelFollowerWindow.move(3,kursorX)
+				newFollowerName = ""
+				levelFollowerWindow.refresh()	
+				curses.curs_set(True)
+				secondInput = standardScreen.getch()
+				while secondInput !=ord("\n") :
+					if secondInput == curses.KEY_BACKSPACE : #doc says it's unreliable
+						if kursorX>1 :
+							levelFollowerWindow.addstr(3, kursorX-1," ") # mask the deleted character
+							kursorX = kursorX -1
+							levelFollowerWindow.move(3,kursorX)
+							newFollowerName = newFollowerName[0:len(newFollowerName)-1]
+
+					elif len(newFollowerName) < lengthOfLongestString :
+						newFollowerName = newFollowerName+chr(secondInput)
+						kursorX = kursorX + 1
+						levelFollowerWindow.move(3,kursorX)
+						levelFollowerWindow.addstr(3, kursorX-1,chr(secondInput))
+					levelFollowerWindow.refresh()
+					secondInput = standardScreen.getch()
+						
+				if newFollowerName != "" :
+					myLabyrinth.nextLevel = str(newFollowerName)
+					titleWin.addstr(2,1,("Following level changed to "+str(myLabyrinth.nextLevel)).ljust(screenMaxX-2))
+				else :
+					titleWin.addstr(2,1,"Rejected empty name".ljust(screenMaxX-2))
+				curses.curs_set(False)
+				levelFollowerWindow.clear()
+				levelFollowerWindow.redrawwin()
+				levelFollowerWindow.refresh()
+
+
+			else :
+				titleWin.addstr(2,1, "No changes to metadata.".ljust(screenMaxX-2))
+			
+			dataWindow.clear()
+			dataWindow.redrawwin()
+			dataWindow.refresh()
+			titleWin.refresh()
+			standardScreen.refresh()
+
+	
+			
+
+
+
 
 		if userInput == ord('s') or userInput == ord('S') : # save function !
 			saveString0 = "The saved file name will be :"
@@ -536,7 +735,12 @@ def main(standardScreen) :
 			sleep(0.5)
 			secondInput = standardScreen.getch()
 			if secondInput == ord('y') or secondInput == ord('Y') :
-				exit()	
+				exit()
+			else :
+				quitWindow.clear()
+				quitWindow.redrawwin()
+				quitWindow.refresh()
+				standardScreen.refresh()
 		#TODO : process curses.KEY_RESIZE
 	
 

@@ -64,6 +64,8 @@ B is the "brush" tool. It works very similarly to "replace", except that it stay
 
 T is the selection tool. After you have pressed T, all other commands are disabled ; you can draw a rectangle using your arrow keys and press T again to confirm you like that particular rectangle. After you have confirmed the selection, you'll have a choice of operations to make on the selected squares : Change them all to paths/walls/objectives/spawns, or "reverse", which makes every path a wall and vice-versa. Pressing any other key at that point will simply cancel the selection.
 
+D is the "Metadata" command. Metadata is data that describes data ; so here, metadata will be data that describes the level (which is the "core" data). You can't edit all the metadata in the file (not high scores for instance), but you can change the name of the level, the name of the author, and the "level to follow". "Level to follow" allows you to create "playlists" of levels : one level, when finished, will prompt the player to play the next one. You should fill this with a filename, not a level name ; so it would be "CryptOfThePharaoh.laby" and not "Crypt of the Pharaoh".
+
 S is the "save" command. A window will appear reminding you what name the saved file will have and asking you if you are sure ; press Y to confirm, or any other key to cancel.
 
 Q is the "quit" command. A window will appear to ask for confirmation ; press Y to confirm you want to quit, or any other key to cancel.
@@ -204,3 +206,5 @@ The editor should have an "undo" button.
 The game & editor should have "square" graphics (like Bastet) : indeed, two spaces next to each other are much closer to a perfect square than just one space.
 
 The game, instead of stopping the count at 9999, should replace the number of moves by "too many" when it's above a certain threshold.
+
+The editor should offer to edit the filename to save to in the Metadata menu.
