@@ -167,7 +167,7 @@ class Labyrinth :
 			pass
 
 		try :
-			fileStream.write("nextlevel "+self.nextLevel)
+			fileStream.write("nextlevel "+self.nextLevel+"\n")
 		except AttributeError :
 			pass
 

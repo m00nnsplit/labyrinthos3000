@@ -24,11 +24,11 @@ def main(standardScreen) :
 	curses.init_pair(12, curses.COLOR_RED, curses.COLOR_GREEN)   # cursor for objective
 	curses.init_pair(13, curses.COLOR_BLUE, curses.COLOR_GREEN)  # cursor for spawn
 	
+	labyrinthLoadedFlag = False
 	# Doing argument processing here, because if I have to actually use one of the arguments passing it to the function would be annoying
 	if len(argv) == 1 :
 		#return("noParameters")
 		# eh, that was kinda dickish
-		labyrinthLoadedFlag = False
 		
 		warnString0 = "Warning : no arguments were given."
 		warnString1 = "Execute \""+argv[0]+" help\" for more info."
@@ -495,38 +495,43 @@ def main(standardScreen) :
 			# this "metadata" window presents and offer to edit level name, author name and level to follow
 			
 			dataString0 = "METADATA :"
+
 			dataString1 = "Level name (L to edit) :"
 			try :
-				dataString2 = "  "+myLabyrinth.name
+				dataString2 = myLabyrinth.name
 			except AttributeError :
-				dataString2 = "  (None set)"
+				dataString2 = "(None set)"
 			dataString3 = "Author name (A to edit) :"
 			try :
-				dataString4 = "  "+myLabyrinth.author
+				dataString4 = myLabyrinth.author
 			except AttributeError :
-				dataString4 = "  (None set)"
-			dataString5 = "Level to follow (F to edit) :"
+				dataString4 = "(None set)"
+			dataString5 = "Level to follow (N to edit) :"
 			try :
-				dataString6 = "  "+myLabyrinth.nextLevel
+				dataString6 = myLabyrinth.nextLevel
 			except AttributeError :
-				dataString6 = "  (None set)"
+				dataString6 = "(None set)"
+			dataString7 = "File name : (F to edit) :"
+			dataString8 = fileName
+
+			dataString9 = "Press any other key to close this window."
 			
-			dataString7 = "Press any other key to close this window."
-			
-			lengthOfLongestString=max(len(dataString0),len(dataString1),len(dataString2),len(dataString3),len(dataString4),len(dataString5), len(dataString6), len(dataString7))
+			lengthOfLongestString=max(len(dataString0),len(dataString1),len(dataString2),len(dataString3),len(dataString4),len(dataString5), len(dataString6), len(dataString7), len(dataString8), len(dataString9))
 			if lengthOfLongestString<30 :
 				lengthOfLongestString = 30
 
-			dataWindow = standardScreen.subwin(10, lengthOfLongestString+2, floor(screenMaxY/2-5), floor(screenMaxX/2-(lengthOfLongestString/2)))
+			dataWindow = standardScreen.subwin(12, lengthOfLongestString+2, floor(screenMaxY/2-6), floor(screenMaxX/2-(lengthOfLongestString/2)))
 			dataWindow.border()
 			dataWindow.addstr(1,1,dataString0.center(lengthOfLongestString))
 			dataWindow.addstr(2,1,dataString1.ljust(lengthOfLongestString))
-			dataWindow.addstr(3,1,dataString2.ljust(lengthOfLongestString))
+			dataWindow.addstr(3,1,("  "+dataString2).ljust(lengthOfLongestString))
 			dataWindow.addstr(4,1,dataString3.ljust(lengthOfLongestString))
-			dataWindow.addstr(5,1,dataString4.ljust(lengthOfLongestString))
+			dataWindow.addstr(5,1,("  "+dataString4).ljust(lengthOfLongestString))
 			dataWindow.addstr(6,1,dataString5.ljust(lengthOfLongestString))
-			dataWindow.addstr(7,1,dataString6.ljust(lengthOfLongestString))
-			dataWindow.addstr(8,1,dataString7.center(lengthOfLongestString))
+			dataWindow.addstr(7,1,("  "+dataString6).ljust(lengthOfLongestString))
+			dataWindow.addstr(8,1,dataString7.ljust(lengthOfLongestString))
+			dataWindow.addstr(9,1,("  "+dataString8).ljust(lengthOfLongestString))
+			dataWindow.addstr(10,1,dataString9.center(lengthOfLongestString))
 
 			dataWindow.refresh()
 			# I'm reluctant to use curses.textpad.TextPad, because Ctrl+G to accept is not intuitive nor coherent with the rest of the program.
@@ -626,8 +631,8 @@ def main(standardScreen) :
 				levelAuthorWindow.redrawwin()
 				levelAuthorWindow.refresh()
 
-			elif secondInput == (ord('f') or ord('F')) :
-				levelFollowerString0 = "Level to follow : "+dataString4
+			elif secondInput == (ord('n') or ord('N')) :
+				levelFollowerString0 = "Level to follow : "+dataString6
 				levelFollowerString1 = "Enter the new filename :"
 				levelFollowerString2 = "(press Enter to confirm)"
 				lengthOfLongestString = max(len(levelFollowerString0),len(levelFollowerString1),len(levelFollowerString2))
@@ -671,7 +676,53 @@ def main(standardScreen) :
 				levelFollowerWindow.clear()
 				levelFollowerWindow.redrawwin()
 				levelFollowerWindow.refresh()
+			
+			elif secondInput == (ord('f') or ord('F')) :
+				fileNameString0 = "Filename to save to : "+dataString8
+				fileNameString1 = "Enter the new filename :"
+				fileNameString2 = "(press Enter to confirm)"
+				lengthOfLongestString = max(len(fileNameString0),len(fileNameString1),len(fileNameString2))
 
+				fileNameWindow = standardScreen.subwin(6,lengthOfLongestString+2, floor(screenMaxY/2-3), floor(screenMaxX/2-(lengthOfLongestString/2)))
+				fileNameWindow.border()
+
+				fileNameWindow.addstr(1,1,fileNameString0.center(lengthOfLongestString))
+				fileNameWindow.addstr(2,1,fileNameString1.center(lengthOfLongestString))
+				fileNameWindow.addstr(3,1,"".center(lengthOfLongestString)) 
+				fileNameWindow.addstr(4,1,fileNameString2.center(lengthOfLongestString))
+				
+				kursorX = 1
+				fileNameWindow.move(3,kursorX)
+				newFileName = ""
+				fileNameWindow.refresh()	
+				curses.curs_set(True)
+				secondInput = standardScreen.getch()
+				while secondInput !=ord("\n") :
+					if secondInput == curses.KEY_BACKSPACE : #doc says it's unreliable
+						if kursorX>1 :
+							fileNameWindow.addstr(3, kursorX-1," ") # mask the deleted character
+							kursorX = kursorX -1
+							fileNameWindow.move(3,kursorX)
+							newFileName = newFileName[0:len(newFileName)-1]
+
+					elif len(newFileName) < lengthOfLongestString :
+						newFileName = newFileName+chr(secondInput)
+						kursorX = kursorX + 1
+						fileNameWindow.move(3,kursorX)
+						fileNameWindow.addstr(3, kursorX-1,chr(secondInput))
+					fileNameWindow.refresh()
+					secondInput = standardScreen.getch()
+						
+				if newFileName != "" :
+					fileName = newFileName
+					titleWin.addstr(2,1,("Following level changed to "+fileName).ljust(screenMaxX-2))
+				else :
+					titleWin.addstr(2,1,"Rejected empty name".ljust(screenMaxX-2))
+				curses.curs_set(False)
+				fileNameWindow.clear()
+				fileNameWindow.redrawwin()
+				fileNameWindow.refresh()
+	 
 
 			else :
 				titleWin.addstr(2,1, "No changes to metadata.".ljust(screenMaxX-2))

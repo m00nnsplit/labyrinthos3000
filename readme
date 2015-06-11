@@ -42,6 +42,7 @@ You can also edit an existing level. This game comes bundled with .laby files (t
 ./levelEditor.py -f CryptOfThePharaoh.laby
 
 The -f option also specifies the file to save to, even if it does not exist yet.
+(you can later change that setting with the "Metadata" command)
 
 If your only argument is the file name, you can pass it directly, like this :
 ./levelEditor.py CryptOfThePharaoh.laby
@@ -64,7 +65,9 @@ B is the "brush" tool. It works very similarly to "replace", except that it stay
 
 T is the selection tool. After you have pressed T, all other commands are disabled ; you can draw a rectangle using your arrow keys and press T again to confirm you like that particular rectangle. After you have confirmed the selection, you'll have a choice of operations to make on the selected squares : Change them all to paths/walls/objectives/spawns, or "reverse", which makes every path a wall and vice-versa. Pressing any other key at that point will simply cancel the selection.
 
-D is the "Metadata" command. Metadata is data that describes data ; so here, metadata will be data that describes the level (which is the "core" data). You can't edit all the metadata in the file (not high scores for instance), but you can change the name of the level, the name of the author, and the "level to follow". "Level to follow" allows you to create "playlists" of levels : one level, when finished, will prompt the player to play the next one. You should fill this with a filename, not a level name ; so it would be "CryptOfThePharaoh.laby" and not "Crypt of the Pharaoh".
+D is the "Metadata" command. Metadata is data that describes data ; so here, metadata will be data that describes the level (which is the "core" data). You can't edit all the metadata in the file (not high scores for instance), but you can change the name of the level, the name of the author, the "level to follow", and the file name.
+"Level to follow" allows you to create "playlists" of levels : one level, when finished, will prompt the player to play the next one. You should fill this with a filename, not a level name ; so it would be "CryptOfThePharaoh.laby" and not "Crypt of the Pharaoh".
+The file name is simply the name of the file to write to (since you can't open files in-editor, it won't have any effect on reading). For instance, you could start editing an existing level (say, "CryptOfThePharaoh.laby") and decide on the way that you don't want to overwrite it (and save your own version as "BetterCryptOfThePharaoh.laby").
 
 S is the "save" command. A window will appear reminding you what name the saved file will have and asking you if you are sure ; press Y to confirm, or any other key to cancel.
 
