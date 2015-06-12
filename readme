@@ -91,7 +91,7 @@ The level editor is non-restrictive : you can place as many of whatever block yo
 
 ** Level generator
 
-Additionally, this game comes bundled with a level generator ; this program will generate rough but playable, levels. Nothing is stopping you from using an automatically generated level as a base for your own levels.
+Additionally, this game comes bundled with a level generator ; this program will generate rough but playable levels. Nothing is stopping you from using an automatically generated level as a base for your own levels.
 
 To use the level generator, simply execute levelGenerator.py as you would the game ; without any arguments, it will generate a 20*20 level and save it as "a.laby".
 
@@ -180,7 +180,7 @@ How the generator works :
 2. designate semi-randomly starting and ending positions (they are always opposite to one another)
 
 3. Repeatedly "take steps" (ie write 0s) in direction of the objective, with a chance not to go in the right direction for added randomness
-3bis. If this takes too long, switch of the "go in the wrong direction" part and keep going straight for the objective. This writes a message to stderr.
+3bis. If this takes too long, switch off the "go in the wrong direction" part and keep going straight for the objective. This writes a message to stderr.
 3ter. If this still takes too long, break out of the loop and go to 4. This also writes a message to stderr.
 
 4. Pick squares at random. If they're 1s, overwrite them with a 0.
@@ -193,13 +193,13 @@ Suggested Features
 
 ** Game
 
-The game should have a "back to starting position" button.
+(DONE !) The game should have a "back to starting position" button.
 
 (kinda done) The game should support high scores
 > The game should support entering your name when setting a high score
 
 The game should support levels playlists
-
+> this is actually not completely trivial. Most stuff (like argument reading) is done in the main function, since I don't how I'd pass it things elseway (since we use a wrapper). My approach would be to return something that signals to restart the main function and pass it the new level name somehow.
 
 (DONE !) Level files should contain not only the pattern, but also additional metadata like what colours to use, what level is to follow this one, and what are the high scores
 

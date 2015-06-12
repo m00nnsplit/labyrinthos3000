@@ -220,7 +220,7 @@ while kPokingHoles < ((labyWidth*labyHeight)) : # labyWidth*labyHeight is an arb
 # adapted for the new file format : now we create a Labyrinth object and call the library for writing
 
 outputLabyrinth = Labyrinth()
-outputLabyrinth.writeComment = "Labyrinth "+str(labyHeight)+" squares tall, "+str(labyWidth)+" squares width, with seed "+labySeed
+outputLabyrinth.writeComment = "Labyrinth "+str(labyHeight)+" squares tall, "+str(labyWidth)+" squares wide, with seed "+labySeed
 outputLabyrinth.name = "Labyrinth of seed "+labySeed
 outputLabyrinth.author = "Labyrinth Generator"
 outputLabyrinth.levelSizeX = labyWidth
