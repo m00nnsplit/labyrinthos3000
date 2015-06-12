@@ -7,6 +7,7 @@ import curses
 from math import floor
 from time import sleep
 from sys import argv, stdout, stderr
+from os import getlogin
 from labyrinthLibrary import *
 
 	
@@ -166,6 +167,14 @@ def main(standardScreen) :
 				if nbMoves < 10000 :
 					nbMoves = nbMoves+1
 	
+		elif userInput == ord(' ') :
+			# "back to start" button
+			xCoord = startCoordX 
+			yCoord = startCoordY 
+			nbMoves = 0				
+			titleWin.addstr(1, screenMaxX-5, "    ")
+
+
 		elif userInput == curses.KEY_RESIZE :
 			# we redraw the entire thing on resize
 			screenMaxY, screenMaxX = standardScreen.getmaxyx()
@@ -243,9 +252,11 @@ def main(standardScreen) :
 					winString5 = "None"
 					winString6 = "None"
 
-				lengthOfLongestString = max(len(winString0), len(winString1), len(winString2),len(winString3),len(winString4),len(winString5),len(winString6))
-				
-				youWonWindow = standardScreen.subwin(9, lengthOfLongestString+2 ,floor(screenMaxY/2-4.5), floor(screenMaxX/2-(lengthOfLongestString/2)))
+				winString7 = "Press H to add your score !"
+
+				lengthOfLongestString = max(len(winString0), len(winString1), len(winString2),len(winString3),len(winString4),len(winString5),len(winString6),len(winString7))
+
+				youWonWindow = standardScreen.subwin(10, lengthOfLongestString+2 ,floor(screenMaxY/2-5), floor(screenMaxX/2-(lengthOfLongestString/2)))
 				# all that for centering
 
 
@@ -257,12 +268,28 @@ def main(standardScreen) :
 				youWonWindow.addstr(5,1,winString4.center(lengthOfLongestString))
 				youWonWindow.addstr(6,1,winString5.center(lengthOfLongestString))
 				youWonWindow.addstr(7,1,winString6.center(lengthOfLongestString))
+				youWonWindow.addstr(8,1,winString7.center(lengthOfLongestString))
 				youWonWindow.refresh()
 				
 				sleep(1)
 				userInput = standardScreen.getch()
 				if userInput == ord('q') or userInput == ord('Q') :
 					exit()
+				elif userInput == (ord('h') or ord('H')) :
+					if labyrinthLoadedFlag == True : #TODO : if os.getlogin() can't give us something, we should just go right into "can't add high score".
+							try :
+								myLabyrinth.highscores.append([nbMoves,getlogin()])
+							except AttributeError :
+								myLabyrinth.highscores = []
+								myLabyrinth.highscores.append([nbMoves,getlogin()])
+							myLabyrinth.write(fileName)
+							youWonWindow.addstr(8,1,("Added score for "+getlogin()).center(lengthOfLongestString))
+							#TODO : add a dialog so that the user can set their name ? I do that on the editor after all.
+					else :
+						youWonWindow.addstr(8,1,"Can't add high score.".center(lengthOfLongestString))
+					youWonWindow.refresh()
+					sleep(2)
+
 				youWonWindow.clear()
 				youWonWindow.redrawwin()
 				youWonWindow.refresh()

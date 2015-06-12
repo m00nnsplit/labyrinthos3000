@@ -10,9 +10,12 @@ Launch the program with "python3 labyrinth.py" or simply "./labyrinth.py" when y
 
 ** Playing the game
 
-Simply use the arrow keys to control the "x" representing your character. You can use the "Q" key to quit when playing, or just Ctrl+C.
-
 Your goal is to reach the red square (or one of them, if there's more than one) ; you can't go through white squares ("walls").
+Score is how many moves it took you to reach the objective ; lower is obviously better.
+
+Simply use the arrow keys to control the "x" representing your character. You can use the "Q" key to quit when playing, or just Ctrl+C.
+You can also use the space bar to get back to the start. Once the game is over, you'll have other options, like saving your high score.
+
 
 
 ** Game parameters
@@ -192,7 +195,8 @@ Suggested Features
 
 The game should have a "back to starting position" button.
 
-The game should support high scores
+(kinda done) The game should support high scores
+> The game should support entering your name when setting a high score
 
 The game should support levels playlists
 
