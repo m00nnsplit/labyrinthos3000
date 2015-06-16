@@ -123,7 +123,30 @@ class Labyrinth :
 
 
 
+	def fill(self, height=20, width=20, block=0) :
+		# this will redraw the level geometry
+		# alright this sounded a bit pretentious
+		# it'll make it a <height>*<width> big level filled with <block>
+		
+		if block != (0 or 1 or 2 or 3) :
+			block = 0
 
+		if height < 1 :
+			height = 1
+
+		if width < 1 :
+			width = 1
+		#TODO : make it so that stuff throws errors or something instead, this is just embarrassing
+
+		newLevel = []
+
+		for y in range(height) :
+			newLabyLine = []
+			for x in range(width) :
+				newLabyLine.append(block)
+			newLevel.append(newLabyLine)
+
+		self.levelMap = newLevel
 
 
 	def write(self, fileName) :
