@@ -5,7 +5,7 @@
  User's manual
 ===============
 
-Launch the program with "python3 labyrinth.py" or simply "./labyrinth.py" when you're in the right folder. You do need the version 3 of python installed.
+Launch the program with "python3 labyrinth" or simply "./labyrinth" when you're in the right folder. You do need the version 3 of python installed.
 
 
 ** Playing the game
@@ -30,25 +30,25 @@ Alternatively, you can call the game with the "help" option : this will print a 
 
 This game comes bundled with a level editor ; we will be talking about its use, and editing levels by hand will be talked about later in the Meddler's guide.
 
-To use the level editor, execute levelEditor.py as you would the game. You have two ways to start the level editor : either start with a blank slate or edit an existing level. If you run the editor without specifying any arguments, it'll give you a blank slate with all default options and a warning message.
+To use the level editor, execute levelEditor as you would the game. You have two ways to start the level editor : either start with a blank slate or edit an existing level. If you run the editor without specifying any arguments, it'll give you a blank slate with all default options and a warning message.
 
 To start from scratch, two options are essential : the -h option which specifies the height of the level (in squares) and the -w options which specifies its width. Both default to 20 ; you CANNOT edit those later, unless you start editing the levels by hand (see the Meddler's guide).
 
 You can also use the -b option to tell the editor it should fill the slate with a particular block ; by default, it is filled with pathways. "0" is pathways, "1" is walls, "2" is objectives and "3" is spawn points.
 
 An example of valid command would be :
-./levelEditor.py -h 20 -w 35 -b 1
+./levelEditor -h 20 -w 35 -b 1
 
 Here we are telling the editor we want a 20 squares high, 35 squares wide level, filled with walls.
 
 You can also edit an existing level. This game comes bundled with .laby files (the .laby extension is unimportant) which you can use as a base. To load a file use the -f option, like this :
-./levelEditor.py -f CryptOfThePharaoh.laby
+./levelEditor -f CryptOfThePharaoh.laby
 
 The -f option also specifies the file to save to, even if it does not exist yet.
 (you can later change that setting with the "Metadata" command)
 
 If your only argument is the file name, you can pass it directly, like this :
-./levelEditor.py CryptOfThePharaoh.laby
+./levelEditor CryptOfThePharaoh.laby
 It works the same as -f, but cannot be combined with other options ; hence you should use it only when loading a level, not when creating one.
 
 
@@ -93,7 +93,7 @@ The level editor is non-restrictive : you can place as many of whatever block yo
 
 Additionally, this game comes bundled with a level generator ; this program will generate rough but playable levels. Nothing is stopping you from using an automatically generated level as a base for your own levels.
 
-To use the level generator, simply execute levelGenerator.py as you would the game ; without any arguments, it will generate a 20*20 level and save it as "a.laby".
+To use the level generator, simply execute levelGenerator as you would the game ; without any arguments, it will generate a 20*20 level and save it as "a.laby".
 
 You can use arguments to set height, width, and output file name. You can also set the seed for the random generator ; this means that if you give the generator the same width, height and seed to work with twice, it will output the exact same level. Hence, you could share a level your particularly liked with your friends as "the 50*80 level with 'gargamel' as seed".
 
