@@ -246,20 +246,21 @@ def main(standardScreen) :
 					terrainWasPaintedLastTurn = False
 					secondInput = standardScreen.getch()
 					if secondInput == curses.KEY_LEFT :
-						xCoord = xCoord -1
-					elif secondInput == curses.KEY_RIGHT :
+						if xCoord > 0 :
+							xCoord = xCoord -1
+					elif secondInput == curses.KEY_RIGHT  :
 						xCoord = xCoord +1
 					elif secondInput == curses.KEY_UP :
-						yCoord = yCoord -1
+						if yCoord>0 :
+							yCoord = yCoord -1
 					elif secondInput == curses.KEY_DOWN :
 						yCoord = yCoord +1	
 					else :
 						titleWin.addstr(2,1,("Exiting brush mode after painting "+str(nbOfSquaresPainted)+" squares.").ljust(screenMaxX-2))
 						titleWin.refresh()
 						break
-
-
-					if xCoord>0 and yCoord>0 and xCoord< myLabyrinth.levelSizeX and yCoord < myLabyrinth.levelSizeY :
+					
+					if xCoord>=0 and yCoord>=0 and xCoord< myLabyrinth.levelSizeX and yCoord < myLabyrinth.levelSizeY :
 						myLabyrinth.levelMap[yCoord][xCoord] = terrainToFillWith
 						#myPad.addstr(yCoord,xCoord, "x", curses.color_pair(int("1"+str(myLabyrinth.levelMap[yCoord][xCoord]))))
 						terrainWasPaintedLastTurn = True
