@@ -149,22 +149,22 @@ def main(standardScreen) :
 		if userInput == curses.KEY_LEFT and xCoord > 0 :
 			if myLabyrinth.levelMap[yCoord][xCoord-1] != 1 :
 				xCoord = xCoord - 1
-				if nbMoves < 10000 : #fuck the guy who'll try to crash through excessive movement
+				if nbMoves < 9999 : #fuck the guy who'll try to crash through excessive movement
 					nbMoves = nbMoves+1
 		elif userInput == curses.KEY_RIGHT and xCoord < (myLabyrinth.levelSizeX-1) :
 			if myLabyrinth.levelMap[yCoord][xCoord+1] != 1 : 
 				xCoord = xCoord + 1
-				if nbMoves < 10000 :
+				if nbMoves < 9999 :
 					nbMoves = nbMoves+1
 		elif userInput == curses.KEY_DOWN and yCoord < (myLabyrinth.levelSizeY-1) :
 			if myLabyrinth.levelMap[yCoord+1][xCoord] != 1 : 
 				yCoord = yCoord + 1
-				if nbMoves < 10000 :
+				if nbMoves < 9999 :
 					nbMoves = nbMoves+1
 		elif userInput == curses.KEY_UP and yCoord > 0 :
 			if myLabyrinth.levelMap[yCoord-1][xCoord] != 1 : 
 				yCoord = yCoord - 1
-				if nbMoves < 10000 :
+				if nbMoves < 9999 :
 					nbMoves = nbMoves+1
 	
 		elif userInput == ord(' ') :
