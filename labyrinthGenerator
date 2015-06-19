@@ -172,7 +172,7 @@ while workingX != objectiveX or workingY != objectiveY :
 			pass
 
 	elif whatWillWeDo == 7 :	
-		if workingX > objectiveX and workingX < labyWidth :
+		if workingX > objectiveX and workingX < (labyWidth-1) :
 			workingX = workingX + 1
 			if myLabyrinth[workingY][workingX] == 0 : # we're not backtracking
 				workingX = workingX -1
@@ -182,7 +182,7 @@ while workingX != objectiveX or workingY != objectiveY :
 				workingX = workingX +1
 
 	elif whatWillWeDo == 8 :	
-		if workingY > objectiveY and workingY < labyHeight:
+		if workingY > objectiveY and workingY < (labyHeight-1):
 			workingY = workingY + 1
 			if myLabyrinth[workingY][workingX] == 0 :
 				workingY = workingY -1
