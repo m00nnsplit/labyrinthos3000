@@ -5,7 +5,7 @@
 from sys import argv, stderr
 import random
 from time import time
-from math import floor
+from math import *
 from labyrinthLibrary import *
 
 # argument processing
@@ -133,76 +133,166 @@ myLabyrinth[objectiveY][objectiveX] = 2
 
 workingX = spawnX
 workingY = spawnY
-kPathfinding = 0
-haveWeGoneTooFar = False
-while workingX != objectiveX or workingY != objectiveY :
-	random.seed(labySeed+str(workingX+workingY+kPathfinding)) #kPathfinding is the anti-infinite loop
-	if kPathfinding > labyWidth*labyHeight and haveWeGoneTooFar == False :
-		haveWeGoneTooFar = True
-		stderr.write("Warning -- could not reach objective :\nAfter "+str(kPathfinding-1)+" loops, this program will stop messing around when trying to get to the objective, and instead go straight for it. (ie, pathfinding randomization has been disabled)\n\n")
-	if haveWeGoneTooFar == True :
-		whatWillWeDo = random.randint(1,6) # this ensures that if we're not making progress for too long, the thing just stops and go straight for the objective
+"""
+	So basically
+	We start at the spawn point
+	and pick a wall tile at a certain range as the next "checkpoint"
+	get there using the pathfinder, and redo that a few times
+"""
+kCheckpoints = 0
+totalPathfindingSteps = 0
+nbOfCheckpoints = ceil(sqrt(labyWidth*labyHeight)/2)
+#checkpointRange = ceil(sqrt(labyWidth*labyHeight)/2) # both are more or less arbitrary, relative to the size of the level
+checkpointRange = 10
+while kCheckpoints <= nbOfCheckpoints :
 	
-	else : 
-		whatWillWeDo = random.randint(1,8)	
+	if kCheckpoints < nbOfCheckpoints :
+		rollCheckpointAgain = True
+		nbOfCheckpointRolls = 0
 
-	# basically : 
-	# 1,2,3 : we go towards the objective in X axis
-	# 4,5,6 : we go towards the objective in Y axis
-	# 7 : we go in the direction opposite to the objective in X axis
-	# 8 : we go in the direcion opposite to the objective in Y axis
-	#
-	# is there a chance of infinite loop this way ? I'm pretty sure there is
-	# the k variable is there to make sure it's purely statistical	
-	# also if it gets too high we say fuck this and exit
 
-	if 1 <= whatWillWeDo <= 3 :
-		if workingX > objectiveX :
-			workingX = workingX - 1
-		elif workingX < objectiveX :
-			workingX = workingX + 1
-		else : # we're there already
-			pass
-	elif 4 <= whatWillWeDo <= 6 :
-		if workingY > objectiveY :
-			workingY = workingY - 1
-		elif workingY < objectiveY :
-			workingY = workingY + 1
-		else : # we're there already
-			pass
+		# picking next checkpoint
+		# it's in range when difference in x + difference in y == range
 
-	elif whatWillWeDo == 7 :	
-		if workingX > objectiveX and workingX < (labyWidth-1) :
-			workingX = workingX + 1
-			if myLabyrinth[workingY][workingX] == 0 : # we're not backtracking
-				workingX = workingX -1
-		elif workingX <= objectiveX and workingX > 0 :
-			workingX = workingX - 1
-			if myLabyrinth[workingY][workingX] == 0 :
-				workingX = workingX +1
+		random.seed(labySeed+str(sqrt(labyHeight*labyWidth))+str(workingX)+str(workingY)+str(kCheckpoints))
+		diffX = random.randint(-checkpointRange,checkpointRange)
+		
+		diffY = checkpointRange-abs(diffX)
+		random.seed(labySeed+str(sqrt(labyHeight*labyWidth))+str(workingY)+str(workingX)+str(kCheckpoints))
+		diffY = diffY*random.choice([-1,1])
 
-	elif whatWillWeDo == 8 :	
-		if workingY > objectiveY and workingY < (labyHeight-1):
-			workingY = workingY + 1
-			if myLabyrinth[workingY][workingX] == 0 :
-				workingY = workingY -1
-		elif workingY <= objectiveY and workingY > 0 :
-			workingY = workingY - 1
-			if myLabyrinth[workingY][workingX] == 0 :
-				workingY = workingY +1
+		# so now let's check if these coordinates we picked are nice
+		nextBestDiffX = False
+		nextBestDiffY = False # these two will be coordinates for a checkpoint in case we only get pathways
+		while nbOfCheckpointRolls < 100 :
+			try :
+				if (workingY+diffY or workingX+diffX) < 0 :
+					rollCheckpointAgain = True
+				
+					# Alright now I GOT to complain about Python AGAIN
+					# myArray[-1] == myArray[len(myArray)-1]
+					# and whoever thought this was a good idea should be hanged
+					# my paths were going through the walls and this is not goddamn pacman
 
-	kPathfinding = kPathfinding+1
-	if kPathfinding > labyWidth*labyHeight*2 : # this is a very generousy value..
-		stderr.write("Error -- could not reach objective :\nAfter "+str(kPathfinding-1)+" loops trying to get to the objective, this program gave up. It will now stop tracing a path to the objective, and go to the next step. You should be able to find the resulting (likely unplayable) labyrinth as "+outputFile+".\n\n")
-		break # actually this shouldn't happen anymore, I got a better idea : no more fooling around (whatWillWeDo == 7 or 8) if kPathfinding is too high
+				elif myLabyrinth[workingY+diffY][workingX+diffX] == 1 :
+					rollCheckpointAgain = False
 
-	if myLabyrinth[workingY][workingX] < 2 : # it's a 0 or 1, not an objective or spawn
-		myLabyrinth[workingY][workingX] = 0
+				else :
+					nextBestDiffX = diffX
+					nextBestDiffY = diffY
+					rollCheckpointAgain = True
 
+			except IndexError : # out of bounds
+				rollCheckpointAgain = True
+			
+
+
+			#TODO/FIXME : all this is very untested, since it only happens when we only get pathways in range..
+
+			if rollCheckpointAgain == True : # we go around the circle the same way a watch's pointy things do
+				if diffY>0 :
+					if diffX>0 : #top right quadrant of the circle
+						diffY=diffY-1
+						diffX=diffX+1
+					else : # top left
+						diffY=diffY+1
+						diffX=diffX+1
+				else :
+					if diffX>0 : # bottom right
+						diffY = diffY-1
+						diffX = diffX-1
+					else : #bottom left
+						diffY = diffY+1
+						diffX = diffX-1
+			nbOfCheckpointRolls = nbOfCheckpointRolls + 1
+		
+		if rollCheckpointAgain == True : # which means we've stopped the loop before a nice candidate was found
+			#stderr.write("Fatal Error -- out-of-bounds checkpoint :\nAfter a significant number of rolls, the pathfinder could not draw a path within bounds. If you get this error repeatedly, try a bigger level size.\n") # and if the implementation was correct this would NEVER happen -- And now that the implementation is correct this will never happen ! Also it's commented out so I'm pretty sure it won't happen even if the implementation is bad.
+
+			# we fall back on pathways since we can't have walls in range	
+			diffX = nextBestDiffX
+			diffY = nextBestDiffY
+
+		nextX = workingX+diffX
+		nextY = workingY+diffY
+		print("nextX : "+str(nextX)+" ("+str(workingX)+" + "+str(diffX)+") -- nextY : "+str(nextY)+" ("+str(workingY)+" + "+str(diffY)+")")
+	else :
+		# going to the objective
+		nextX = objectiveX
+		nextY = objectiveY
+
+	kPathfinding = 0
+	haveWeGoneTooFar = False
+	while workingX != nextX or workingY != nextY :
+		random.seed(labySeed+str(workingX+workingY+kPathfinding)) #kPathfinding is the anti-infinite loop
+		if kPathfinding > labyWidth*labyHeight and haveWeGoneTooFar == False :
+			haveWeGoneTooFar = True
+			stderr.write("Warning -- could not reach objective :\nAfter "+str(kPathfinding-1)+" loops, this program will stop messing around when trying to get to the objective, and instead go straight for it. (ie, pathfinding randomization has been disabled)\n\n")
+		if haveWeGoneTooFar == True :
+			whatWillWeDo = random.randint(1,6) # this ensures that if we're not making progress for too long, the thing just stops and go straight for the objective
+		
+		else : 
+			whatWillWeDo = random.randint(1,8)	
+
+		# basically : 
+		# 1,2,3 : we go towards the objective in X axis
+		# 4,5,6 : we go towards the objective in Y axis
+		# 7 : we go in the direction opposite to the objective in X axis
+		# 8 : we go in the direcion opposite to the objective in Y axis
+		#
+		# is there a chance of infinite loop this way ? I'm pretty sure there is
+		# the k variable is there to make sure it's purely statistical	
+		# also if it gets too high we say fuck this and exit
+
+		if 1 <= whatWillWeDo <= 3 :
+			if workingX > nextX :
+				workingX = workingX - 1
+			elif workingX < nextX :
+				workingX = workingX + 1
+			else : # we're there already
+				pass
+		elif 4 <= whatWillWeDo <= 6 :
+			if workingY > nextY :
+				workingY = workingY - 1
+			elif workingY < nextY :
+				workingY = workingY + 1
+			else : # we're there already
+				pass
+
+		elif whatWillWeDo == 7 :	
+			if workingX > nextX and workingX < (labyWidth-1) :
+				workingX = workingX + 1
+				if myLabyrinth[workingY][workingX] == 0 : # we're not backtracking
+					workingX = workingX -1
+			elif workingX <= nextX and workingX > 0 :
+				workingX = workingX - 1
+				if myLabyrinth[workingY][workingX] == 0 :
+					workingX = workingX +1
+
+		elif whatWillWeDo == 8 :	
+			if workingY > nextY and workingY < (labyHeight-1):
+				workingY = workingY + 1
+				if myLabyrinth[workingY][workingX] == 0 :
+					workingY = workingY -1
+			elif workingY <= nextY and workingY > 0 :
+				workingY = workingY - 1
+				if myLabyrinth[workingY][workingX] == 0 :
+					workingY = workingY +1
+
+		kPathfinding = kPathfinding+1
+		if kPathfinding > labyWidth*labyHeight*2 : # this is a very generousy value..
+			stderr.write("Error -- could not reach objective :\nAfter "+str(kPathfinding-1)+" loops trying to get to the objective, this program gave up. It will now stop tracing a path to the objective, and go to the next step. You should be able to find the resulting (likely unplayable) labyrinth as "+outputFile+".\n\n")
+			break # actually this shouldn't happen anymore, I got a better idea : no more fooling around (whatWillWeDo == 7 or 8) if kPathfinding is too high
+
+		if myLabyrinth[workingY][workingX] < 2 : # it's a 0 or 1, not an next or spawn
+			myLabyrinth[workingY][workingX] = 0
+
+	kCheckpoints = kCheckpoints + 1
+	totalPathfindingSteps = totalPathfindingSteps + kPathfinding
 
 # now we blow holes at random in the 1s of the table
-
-
+# TODO : apply the tree method to this
+"""
 kPokingHoles = 0
 while kPokingHoles < ((labyWidth*labyHeight)) : # labyWidth*labyHeight is an arbitrary value. Keep in mind we could pick the same square twice, and only squares with a 1 are eligible
 	random.seed(labySeed+str(labyWidth)+str(kPokingHoles)+str(kPathfinding))
@@ -214,7 +304,7 @@ while kPokingHoles < ((labyWidth*labyHeight)) : # labyWidth*labyHeight is an arb
 		myLabyrinth[randY][randX] = 0 	
 	
 	kPokingHoles = kPokingHoles + 1
-
+"""
 # now we write to file
 
 # adapted for the new file format : now we create a Labyrinth object and call the library for writing
@@ -230,4 +320,4 @@ outputLabyrinth.highscores = []
 
 outputLabyrinth.write(outputFile)
 
-print("Labyrinth written to "+outputFile+". It took "+str(kPathfinding)+" loops to find a way from the spawn point to the objective, plus "+str(kPokingHoles)+" loops to poke holes in the thing so it would look better. Seed was \""+labySeed+"\" with "+str(labyWidth)+" squares of width and "+str(labyHeight)+" squares of height.")
+#print("Labyrinth written to "+outputFile+". It took "+str(totalPathfindingSteps)+" loops to find a way from the spawn point to the objective, plus "+str(kPokingHoles)+" loops to poke holes in the thing so it would look better. Seed was \""+labySeed+"\" with "+str(labyWidth)+" squares of width and "+str(labyHeight)+" squares of height.")

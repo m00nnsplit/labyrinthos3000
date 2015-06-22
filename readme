@@ -215,3 +215,9 @@ The game & editor should have "square" graphics (like Bastet) : indeed, two spac
 The game, instead of stopping the count at 9999, should replace the number of moves by "too many" when it's above a certain threshold.
 
 The editor should offer to edit the filename to save to in the Metadata menu.
+
+** Generator
+
+Instead of pathfinding to the objective, we should pick a point at random in a certain range, pathfind to it, repick a point at the same range, pathfind.. a few times before going to the objective
+
+then, in the "filling" phase, instead of blanking squares at random, we should do the same : pick a pathway, pick a wall at a certain range at random, pathfind to it.
